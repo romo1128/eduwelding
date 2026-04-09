@@ -1,64 +1,269 @@
-<div class="ingenieria-container" style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background: #fff;">
-    <h4 style="color: #0390B9;">Calculadora de Fatiga (Goodman)</h4>
-    <div id="status-fatiga" style="font-size: 0.8em; color: #888; margin-bottom: 10px;">⏳ Inicializando motor...</div>
-    
-    <div id="output-fatiga" style="text-align: center; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caracterización de Esfuerzos Fluctuantes | EduWelding</title>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+        :root { --primary: #0390B9; --text: #2c3e50; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; color: var(--text); max-width: 1000px; margin: 0 auto; padding: 40px; background-color: var(--bg); }
+        .chapter-card { background: white; padding: 50px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        h1, h2 { color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .theory-text { margin-bottom: 25px; text-align: justify; }
+        
+        /* Contenedor del Simulador Interactivo */
+        .interactive-tool { 
+            background: #ffffff; border: 2px solid var(--primary); border-radius: 12px; 
+            margin: 40px 0; display: grid; grid-template-columns: 350px 1fr; overflow: hidden;
+        }
+        .controls { background: #f1f4f6; padding: 25px; border-right: 1px solid #ddd; }
+        .display-area { padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; }
+        
+        .slider-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; font-size: 0.9em; margin-bottom: 8px; }
+        input[type="range"] { width: 100%; accent-color: var(--primary); }
+        .val-badge { background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; float: right; }
+        
+        .formula-box { background: #eef9ff; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); margin: 20px 0; }
+        #plot-container { width: 100%; min-height: 400px; }
+        .loading-overlay { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid py-4" style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333; background-color: #fdfdfd;">
+
+    <header class="p-4 mb-5 rounded-3 shadow-sm border-start border-5 border-primary" style="background-color: #f0f9ff;">
+        <h2 class="display-6 fw-bold text-primary">Criterios de Falla por Esfuerzos Fluctuantes</h2>
+        <p class="lead text-muted">Diagramas S-N, Línea de Goodman y Verificación de Fluencia.</p>
+    </header>
+
+    <section class="row g-4 mb-5">
+        <div class="col-lg-7">
+            <h3 class="h4 text-primary border-bottom pb-2">Influencia del Esfuerzo Medio en el S-N</h3>
+            <p>El diagrama S-N se genera normalmente con esfuerzos completamente invertidos, pero puede incluir un esfuerzo medio. La siguiente figura muestra curvas S-N (esfuerzo alternante vs. vida a fatiga) para diferentes esfuerzos medios. La curva superior es para esfuerzo medio cero. Esfuerzos medios más altos reducen el límite de resistencia y la vida útil para un esfuerzo alternante dado.</p>
         </div>
+        <div class="col-lg-5">
+            <figure class="card border-0 shadow-sm p-3 bg-white h-100 justify-content-center">
+                <img src="https://eduwelding.com/draftfile.php/2495/user/draft/933050034/image%20%284%29.png" class="img-fluid rounded mx-auto" alt="Curvas S-N">
+                <figcaption class="figure-caption text-center mt-2 small fw-bold">Curvas S-N características para niveles crecientes de esfuerzo medio.</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <section class="mb-5 p-4 bg-light rounded shadow-sm border text-break">
+        <p>Históricamente, los datos de esfuerzos fluctuantes se han graficado de muchas formas, como el diagrama de Goodman, el modificado-Goodman, el de fatiga maestro o el de Haigh. Actualmente, el medio más simple y común es el diagrama de esfuerzo fluctuante, que grafica el esfuerzo alternante ( \( \sigma_a \)) contra el esfuerzo medio ( \( \sigma_m \)).</p>
+        <div class="row align-items-center mt-4 text-center text-lg-start">
+            <div class="col-lg-6 mb-3">
+                <figure class="bg-white p-3 rounded border shadow-sm">
+                    <img src="https://eduwelding.com/draftfile.php/2495/user/draft/933050034/image%20%285%29.png" class="img-fluid" alt="Curvas de vida constante">
+                    <figcaption class="figure-caption mt-2 small fw-bold">Curvas de vida constante en el diagrama de esfuerzo fluctuante.</figcaption>
+                </figure>
+            </div>
+            <div class="col-lg-6">
+                <p>De la familia de curvas S-N que se graficaron previamente, se pueden extraer combinaciones de \( \sigma_a \) y \( \sigma_m \) con igual vida a fatiga y trazarlas como curvas de vida constante en el diagrama de esfuerzo fluctuante, como se muestra a continuación. Este diagrama muestra el efecto del esfuerzo medio en la vida a fatiga, dejando claro que, para cualquier vida deseada, un aumento en el esfuerzo medio debe ir acompañado de una disminución en el esfuerzo alternante.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <h3 class="h4 text-primary">La Línea de Goodman</h3>
+                <p>De la figura anterior, los puntos de datos de la curva de vida constante de \( 10^6 \) ciclos reflejan la dispersión y marcan la frontera predicha entre la vida finita y la vida infinita en aceros. Para lograr vida infinita, la combinación de esfuerzo alternante ( \(\sigma_{a} \)) y esfuerzo medio ( \( \sigma_{m} \) ) debe caer dentro del área delimitada por estos puntos.</p>
+                <p>Un criterio de diseño conservador común para el límite de vida infinita es una línea recta que une el límite de resistencia con la resistencia última. Esta línea es conocida como línea de Goodman modificada, aunque por simplicidad la llamaremos simplemente línea de Goodman. Esta línea conecta dos puntos: el límite de resistencia cuando el esfuerzo medio es cero (esfuerzo completamente invertido) y la resistencia última cuando el esfuerzo alternante es cero (esfuerzo constante). La ecuación para la linea de goodman es:</p>
+                <div class="p-3 bg-white border border-info rounded text-center my-3 shadow-sm">
+                    <p class="h4 mb-0">\[ \frac{ \sigma_{a}}{S_{e}} + \frac{ \sigma_{m}}{S_{ut}} = 1 \]</p>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                <figure class="figure border p-2 bg-white rounded shadow-sm">
+                    <img src="https://eduwelding.com/draftfile.php/2495/user/draft/933050034/image%20%286%29.png" class="img-fluid" alt="Diagrama Goodman">
+                    <figcaption class="figure-caption fw-bold">Figura: Línea de Goodman como criterio de fatiga.</figcaption>
+                </figure>
+            </div>
+        </div>
+        <p>Para usar la línea de Goodman como criterio de diseño, se traza una línea de carga desde el origen a través de un punto de esfuerzo dado ( \( \sigma_{m} \), \( \sigma_{a} \)), asumiendo que el aumento de esfuerzo mantendrá la relación \( \sigma_{a} / \sigma_{m} \). El factor de seguridad con respecto a la vida infinita se define como la proporción de la distancia a lo largo de esta línea entre la resistencia (OB) y el esfuerzo (OA), es decir, \( n_{f} = OB / OA \). Esto se calcula encontrando las coordenadas \( (S_{m}, S_{a}) \) del punto de intersección (B) con la línea de falla, resultando en \( n_{f} = S_{a} / \sigma_{a} = S_m / \sigma_m \). Matemáticamente, para esta línea de carga, el factor \( n_f \) también se puede encontrar al aplicar dicho factor de diseño a los esfuerzos en la ecuación de la linea de Goodman y despejándolo, asi:</p>
+        <div class="p-3 bg-light border-start border-4 border-primary mb-3 text-center">
+             \[ n_{f} = \left( \frac{ \sigma_{a}}{S_{e}} + \frac{ \sigma_{m}}{S_{ut}} \right)^{-1} \; \; , \; \; \sigma_{m} \ge 0 \]
+        </div>
+        <p>El factor de seguridad basado en la línea de Goodman se usa comúnmente en diseños donde se busca cierto conservadurismo. Al utilizarlo, debe recordarse que se aplica a un elemento de esfuerzo específico de una pieza y material concretos. Los esfuerzos deben incluir el <strong>factor de concentración de fatiga</strong> aplicable, y el límite de resistencia debe obtenerse mediante pruebas reales de la pieza o estimarse y ajustarse con los factores de corrección apropiados. Un factor de seguridad mayor a 1 predice vida infinita, y un factor menor a 1 predice vida finita.</p>
+    </section>
+
+    <section class="mb-5 p-4 bg-dark text-white rounded-3 shadow">
+        <h3 class="h4 text-info">Normalización y Esfuerzos Medios Negativos</h3>
+        <p>Hasta ahora, la presentación de la línea de Goodman se ha basado en datos hipotéticos de un solo material. Para evaluar qué tan bien se ajusta una curva a los datos, es útil normalizar el diagrama de esfuerzo fluctuante. Esto permite trazar datos de diferentes materiales y programas de prueba en un mismo gráfico. El gráfico siguiente muestra dicha gráfica para una variedad de aceros, donde el eje de ordenadas se normaliza dividiendo el esfuerzo alternante entre el límite de resistencia, y el eje de abscisas se normaliza dividiendo el esfuerzo medio entre la resistencia última del material.</p>
+        <figure class="text-center my-4 bg-white p-2 rounded">
+            <img src="https://eduwelding.com/draftfile.php/2495/user/draft/933050034/image%20%281%29.png" class="img-fluid border rounded shadow-sm" style="max-height: 400px;">
+            <figcaption class="figure-caption fw-bold mt-2 text-dark">Gráfica de fallas de esfuerzos medios en tensión y compresión.</figcaption>
+        </figure>
+        <p>El gráfico anterior también incluye el rango de esfuerzos medios negativos, donde se observa que los puntos de falla no indican una reducción en los esfuerzos alternantes a medida que aumentan los esfuerzos medios de compresión. De hecho, las pruebas a menudo muestran un aumento en el esfuerzo alternante. Este fenómeno es interesante: el esfuerzo medio de compresión no es perjudicial para la vida a fatiga, e incluso suele ser beneficioso. Para el esfuerzo medio negativo, un criterio de diseño conservador similar es una línea horizontal desde el límite de resistencia. Un factor de seguridad de fatiga basado en dicha línea es:</p>
+        <div class="text-center p-3 bg-secondary bg-opacity-25 border border-secondary rounded mb-3">
+            \[ n_{f} = \frac{S_{e}}{\sigma_{a}} \; \; , \; \; \sigma_{m} \lt 0 \]
+        </div>
+    </section>
+
+    <section class="card border-danger mb-5 shadow-sm">
+        <div class="card-body">
+            <h3 class="h4 text-danger">Verificación de Fluencia (Línea de Langer)</h3>
+            <p>Es necesario verificar la fluencia. Dado que solo estamos considerando una situación de esfuerzo uniaxial, podemos simplemente comparar el esfuerzo máximo con el límite elástico (\( S_{y} \)). El factor de seguridad que protege contra la fluencia en el primer ciclo se calcula como:</p>
+            <div class="text-center my-3 bg-white p-3 border rounded shadow-sm">
+                \[ n_{y} = \frac{S_{y}}{ \sigma_{max} } = \frac{ S_{y} }{ \sigma_{a} + \left| \sigma_{m} \right| } \]
+            </div>
+            <p>Donde el valor absoluto del esfuerzo medio permite que la ecuación se aplique tanto para esfuerzos medios positivos como negativos. Es útil trazar la condición de fluencia en el diagrama de esfuerzo fluctuante para compararla con el criterio de fatiga. Al establecer \( n_y \) igual a la unidad y trazar la ecuación \( \sigma_a + | \sigma_m| = S_y \), se obtienen dos líneas diagonales, como se muestra en la siguiente figura. Las líneas de fluencia se conocen como líneas de Langer.</p>
+            <figure class="text-center my-4">
+                <img src="https://eduwelding.com/draftfile.php/2495/user/draft/933050034/image%20%287%29.png" class="img-fluid border rounded" style="max-height: 400px;">
+                <figcaption class="figure-caption fw-bold mt-2">Zonas de vida infinita, vida finita y fluencia en el primer ciclo.</figcaption>
+            </figure>
+            <p>Note que existe una zona en el lado de esfuerzo medio positivo donde la línea de fluencia cruza por dentro de la línea de fatiga. Esta zona indica que es posible que ocurra la fluencia en el primer ciclo, incluso cuando se predice vida a fatiga infinita. Por esta razón, siempre es aconsejable verificar la fluencia, incluso en una situación de carga de fatiga, especialmente cuando el esfuerzo medio es grande y el esfuerzo alternante es pequeño.</p>
+        </div>
+    </section>
+
+    <section class="card shadow-lg border-primary mb-5 overflow-hidden">
+        <div class="card-header bg-primary text-white py-3">
+            <h4 class="mb-0">Laboratorio de Análisis de Falla (Goodman-Langer)</h4>
+        </div>
+        <div class="card-body p-4 bg-white">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <label class="small fw-bold">\( S_{ut} \) (MPa): <span id="v-sut">700</span></label>
+                    <input type="range" class="form-range" id="in-sut" min="300" max="1500" value="700">
+                    
+                    <label class="small fw-bold mt-3">\( S_y \) (MPa): <span id="v-sy">500</span></label>
+                    <input type="range" class="form-range" id="in-sy" min="200" max="1200" value="500">
+
+                    <label class="small fw-bold mt-3">\( S_e \) (MPa): <span id="v-se">300</span></label>
+                    <input type="range" class="form-range" id="in-se" min="100" max="800" value="300">
+
+                    <hr>
+                    <label class="small fw-bold text-primary">\( \sigma_m \) (Esfuerzo Medio): <span id="v-sm2">150</span></label>
+                    <input type="range" class="form-range" id="in-sm2" min="-400" max="600" value="150">
+
+                    <label class="small fw-bold text-primary mt-3">\( \sigma_a \) (Esfuerzo Alterno): <span id="v-sa2">100</span></label>
+                    <input type="range" class="form-range" id="in-sa2" min="10" max="500" value="100">
+
+                    <button class="btn btn-primary w-100 mt-4 fw-bold shadow-sm" onclick="renderizarGoodman()">EJECUTAR ANÁLISIS DINÁMICO</button>
+                    
+                    <div id="loader-goodman" class="text-center mt-3 d-none">
+                        <div class="spinner-border spinner-border-sm text-primary"></div>
+                        <span class="small ms-2">Inicializando Python...</span>
+                    </div>
+                </div>
+                
+                <div class="col-md-8 border-start text-center">
+                    <div id="goodman-res" class="mb-3 d-none">
+                         <span id="nf-badge" class="badge p-3 mx-1 text-dark border shadow-sm" style="font-size: 1rem;"></span>
+                         <span id="ny-badge" class="badge p-3 mx-1 text-dark border shadow-sm" style="font-size: 1rem;"></span>
+                    </div>
+                    <div id="goodman-plot">
+                        <div class="py-5 text-muted">Ajuste los parámetros y presione el botón para generar el gráfico interactivo.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
+<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
 <script>
-if (typeof loadPyodide === 'undefined') {
-    const script = document.createElement('script');
-    script.src = "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js";
-    document.head.appendChild(script);
-}
-</script>
+let pyInstance = null;
 
-<script>
-async function ejecutarSimulacion() {
-    const status = document.getElementById('status-fatiga');
-    const output = document.getElementById('output-fatiga');
+async function renderizarGoodman() {
+    const loader = document.getElementById('loader-goodman');
+    const plotDiv = document.getElementById('goodman-plot');
+    const resDiv = document.getElementById('goodman-res');
 
     try {
-        // Esperamos a que la librería cargue en el navegador
-        if (typeof loadPyodide === 'undefined') {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            return ejecutarSimulacion(); 
+        if (!pyInstance) {
+            loader.classList.remove('d-none');
+            pyInstance = await loadPyodide();
+            await pyInstance.loadPackage(['matplotlib', 'numpy']);
+            loader.classList.add('d-none');
         }
 
-        // Iniciamos el motor de Python
-        status.innerText = "⏳ Cargando librerías (Numpy/Matplotlib)...";
-        let py = await loadPyodide();
-        await py.loadPackage(["matplotlib", "numpy"]);
+        const sut = parseFloat(document.getElementById('in-sut').value);
+        const sy = parseFloat(document.getElementById('in-sy').value);
+        const se = parseFloat(document.getElementById('in-se').value);
+        const sm = parseFloat(document.getElementById('in-sm2').value);
+        const sa = parseFloat(document.getElementById('in-sa2').value);
 
-        const pythonCode = `
+        // Actualizar visualización de etiquetas
+        document.getElementById('v-sut').innerText = sut;
+        document.getElementById('v-sy').innerText = sy;
+        document.getElementById('v-se').innerText = se;
+        document.getElementById('v-sm2').innerText = sm;
+        document.getElementById('v-sa2').innerText = sa;
+
+        // Cálculos de Factor de Seguridad
+        let nf = (sm >= 0) ? 1/((sa/se) + (sm/sut)) : se/sa;
+        let ny = sy / (sa + Math.abs(sm));
+
+        resDiv.classList.remove('d-none');
+        const nfb = document.getElementById('nf-badge');
+        const nyb = document.getElementById('ny-badge');
+        
+        nfb.innerText = "nf (Fatiga): " + nf.toFixed(2);
+        nfb.style.backgroundColor = nf >= 1 ? "#d1e7dd" : "#f8d7da";
+        
+        nyb.innerText = "ny (Fluencia): " + ny.toFixed(2);
+        nyb.style.backgroundColor = ny >= 1 ? "#d1e7dd" : "#f8d7da";
+
+        await pyInstance.runPythonAsync(`
 import matplotlib.pyplot as plt
+import numpy as np
 import io, base64
 
-sut, se = 600, 300
-fig, ax = plt.subplots(figsize=(5, 3))
-ax.plot([0, sut], [se, 0], 'b-', lw=2, label='Goodman')
-ax.fill_between([0, sut], [se, 0], color='blue', alpha=0.1)
-ax.set_title("Criterio de Falla")
-ax.grid(True, alpha=0.3)
+sut, sy, se = ${sut}, ${sy}, ${se}
+sm_in, sa_in = ${sm}, ${sa}
 
+plt.clf()
+fig, ax = plt.subplots(figsize=(6, 4))
+
+# Línea de Goodman (Criterio de fatiga)
+ax.plot([0, sut], [se, 0], color='#0d6efd', lw=2, label='Línea Goodman')
+ax.plot([-sut*0.5, 0], [se, se], color='#0d6efd', lw=2)
+
+# Línea de Langer (Criterio de fluencia)
+ax.plot([0, sy], [sy, 0], color='#dc3545', ls='--', label='Línea Langer')
+ax.plot([-sy, 0], [0, sy], color='#dc3545', ls='--')
+
+# Punto de trabajo actual
+ax.scatter([sm_in], [sa_in], color='black', s=80, zorder=5, label='Estado de Esfuerzo')
+
+# Formato del gráfico
+ax.axhline(0, color='black', lw=1)
+ax.axvline(0, color='black', lw=1)
+ax.set_xlabel('Esfuerzo Medio σm (MPa)')
+ax.set_ylabel('Esfuerzo Alternante σa (MPa)')
+ax.set_title("Espacio de Diseño: Fatiga vs Fluencia")
+ax.grid(True, alpha=0.3)
+ax.legend(fontsize='small')
+
+# Exportar imagen a base64
 buf = io.BytesIO()
 plt.savefig(buf, format='png', bbox_inches='tight')
-img_str = base64.b64encode(buf.read()).decode('utf-8')
-f"data:image/png;base64,{img_str}"
-        `;
-
-        const imgData = await py.runPythonAsync(pythonCode);
+plt.close(fig)
+img_str = base64.b64encode(buf.getvalue()).decode('utf-8')
+        `);
         
-        status.innerText = "✅ Gráfica generada";
-        output.innerHTML = `<img src="${imgData}" style="max-width:100%; border-radius:5px;">`;
+        const imgData = pyInstance.globals.get("img_str");
+        plotDiv.innerHTML = `<img src="data:image/png;base64,${imgData}" class="img-fluid border rounded shadow-sm">`;
+        
+        // Renderizar ecuaciones de MathJax si están presentes
+        if (window.MathJax) window.MathJax.typesetPromise();
 
-    } catch (err) {
-        status.innerText = "❌ Error";
-        output.innerHTML = `<code style="color:red">${err}</code>`;
+    } catch (e) { 
+        console.error(e);
+        alert("Error en la ejecución del script Python.");
     }
 }
-
-// Lanzamos la ejecución
-ejecutarSimulacion();
 </script>
+
+</body>
+</html>
