@@ -1,0 +1,64 @@
+<div class="ingenieria-container" style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background: #fff;">
+    <h4 style="color: #0390B9;">Calculadora de Fatiga (Goodman)</h4>
+    <div id="status-fatiga" style="font-size: 0.8em; color: #888; margin-bottom: 10px;">⏳ Inicializando motor...</div>
+    
+    <div id="output-fatiga" style="text-align: center; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+        </div>
+</div>
+
+<script>
+if (typeof loadPyodide === 'undefined') {
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js";
+    document.head.appendChild(script);
+}
+</script>
+
+<script>
+async function ejecutarSimulacion() {
+    const status = document.getElementById('status-fatiga');
+    const output = document.getElementById('output-fatiga');
+
+    try {
+        // Esperamos a que la librería cargue en el navegador
+        if (typeof loadPyodide === 'undefined') {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return ejecutarSimulacion(); 
+        }
+
+        // Iniciamos el motor de Python
+        status.innerText = "⏳ Cargando librerías (Numpy/Matplotlib)...";
+        let py = await loadPyodide();
+        await py.loadPackage(["matplotlib", "numpy"]);
+
+        const pythonCode = `
+import matplotlib.pyplot as plt
+import io, base64
+
+sut, se = 600, 300
+fig, ax = plt.subplots(figsize=(5, 3))
+ax.plot([0, sut], [se, 0], 'b-', lw=2, label='Goodman')
+ax.fill_between([0, sut], [se, 0], color='blue', alpha=0.1)
+ax.set_title("Criterio de Falla")
+ax.grid(True, alpha=0.3)
+
+buf = io.BytesIO()
+plt.savefig(buf, format='png', bbox_inches='tight')
+img_str = base64.b64encode(buf.read()).decode('utf-8')
+f"data:image/png;base64,{img_str}"
+        `;
+
+        const imgData = await py.runPythonAsync(pythonCode);
+        
+        status.innerText = "✅ Gráfica generada";
+        output.innerHTML = `<img src="${imgData}" style="max-width:100%; border-radius:5px;">`;
+
+    } catch (err) {
+        status.innerText = "❌ Error";
+        output.innerHTML = `<code style="color:red">${err}</code>`;
+    }
+}
+
+// Lanzamos la ejecución
+ejecutarSimulacion();
+</script>
