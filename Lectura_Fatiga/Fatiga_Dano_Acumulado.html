@@ -2,155 +2,256 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Fatiga Avanzado</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
+
     <style>
         :root {
-            --primary: #1a73e8;
-            --danger: #d93025;
-            --success: #188038;
-            --bg: #ffffff;
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --bg: #f8fafc;
+            --panel: #ffffff;
         }
+
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: #1e293b;
             margin: 0;
             padding: 20px;
-            background-color: transparent;
-            color: #3c4043;
         }
-        .container {
+
+        .dashboard {
             display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
-            max-width: 1000px;
+            grid-template-columns: 1fr 450px;
+            gap: 20px;
+            max-width: 1400px;
             margin: auto;
-            border: 1px solid #dadce0;
-            border-radius: 8px;
-            background: var(--bg);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden;
         }
-        .theory-side { padding: 30px; line-height: 1.6; }
-        .sim-side { padding: 20px; background: #f8f9fa; border-left: 1px solid #dadce0; }
+
+        .panel {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .header { grid-column: 1 / -1; margin-bottom: 10px; }
+
+        /* Estilo de la Tabla */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th { background: #f1f5f9; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
         
-        .status-display {
-            background: #202124;
-            color: #fff;
-            padding: 20px;
-            border-radius: 6px;
+        input[type="number"] {
+            width: 80px;
+            padding: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .status-card {
             text-align: center;
+            padding: 20px;
+            border-radius: 8px;
             margin-bottom: 20px;
+            transition: all 0.3s;
         }
-        .damage-value {
-            font-size: 2.5rem;
-            font-family: 'Courier New', monospace;
-            display: block;
-            margin: 10px 0;
-        }
-        .control-group {
-            background: #fff;
-            padding: 15px;
-            border: 1px solid #dadce0;
+
+        .status-safe { background: #f0fdf4; border: 1px solid #bbf7d0; color: var(--success); }
+        .status-fail { background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); }
+
+        .btn {
+            cursor: pointer;
+            padding: 8px 16px;
             border-radius: 6px;
-            margin-bottom: 15px;
+            border: none;
+            font-weight: 600;
+            transition: opacity 0.2s;
         }
-        input[type=range] { width: 100%; margin: 10px 0; cursor: pointer; }
-        .label-row { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; }
-        
-        @media (max-width: 850px) {
-            .container { grid-template-columns: 1fr; }
-            .sim-side { border-left: none; border-top: 1px solid #dadce0; }
-        }
+        .btn-add { background: var(--primary); color: white; margin-top: 10px; }
+        .btn-del { background: #fee2e2; color: var(--danger); }
+
+        @media (max-width: 1000px) { .dashboard { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="theory-side">
-        <h2 style="color: var(--primary); margin-top: 0;">Regla de Palmgren-Miner</h2>
-        <p>Esta regla establece que el daño por fatiga es acumulativo y lineal. Si sometemos una pieza a distintos niveles de esfuerzo, la vida útil se agota proporcionalmente.</p>
-        <div style="background: #e8f0fe; padding: 15px; border-radius: 4px; text-align: center; font-size: 1.2rem;">
-            <strong>&Sigma; (n<sub>i</sub> / N<sub>i</sub>) = D</strong>
-        </div>
-        <p>Donde:</p>
-        <ul>
-            <li><b>n<sub>i</sub>:</b> Ciclos aplicados a un esfuerzo específico.</li>
-            <li><b>N<sub>i</sub>:</b> Ciclos hasta la falla para ese esfuerzo.</li>
-        </ul>
-        <p>Cuando <b>D &ge; 1.0</b>, se predice la falla catastrófica del componente.</p>
+<div class="dashboard">
+    <div class="header panel">
+        <h1 style="margin:0; color:#0f172a;">Analizador de Daño Acumulado (Miner-Palmgren)</h1>
+        <div id="formula" style="margin-top:10px; font-size: 1.2rem;"></div>
     </div>
 
-    <div class="sim-side">
-        <div class="status-display">
-            <span style="color: #9aa0a6; font-size: 0.8rem;">DAÑO ACUMULADO TOTAL</span>
-            <span id="display-d" class="damage-value">0.0000</span>
-            <div id="display-msg" style="font-weight: bold;">ESTADO: NOMINAL</div>
+    <div class="panel">
+        <h3 style="margin-top:0;">Curva S-N y Puntos de Operación</h3>
+        <canvas id="snChart" height="250"></canvas>
+        <div id="pedagogic-feedback" style="margin-top:20px; font-size: 14px; color:#64748b; padding:15px; background:#f1f5f9; border-radius:8px;">
+            <strong>Análisis del Ingeniero:</strong> <span id="feedback-text">Añade datos para comenzar el análisis.</span>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div id="status-box" class="status-card status-safe">
+            <span style="font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">Daño Total (D)</span>
+            <div id="total-damage" style="font-size: 3rem; font-weight: 800; margin: 5px 0;">0.0000</div>
+            <div id="status-label" style="font-weight: 600;">ESTRUCTURA ÍNTEGRA</div>
         </div>
 
-        <div class="control-group" style="border-top: 4px solid var(--primary);">
-            <div class="label-row" style="color: var(--primary);">
-                <span>CARGA A (n1)</span>
-                <span><span id="v-n1">50</span>k ciclos</span>
-            </div>
-            <input type="range" id="sl-n1" min="1" max="1000" value="50">
-            <div class="label-row">
-                <span>Esfuerzo (&sigma;1)</span>
-                <span><span id="v-s1">250</span> MPa</span>
-            </div>
-            <input type="range" id="sl-s1" min="100" max="550" value="250">
-        </div>
-
-        <div class="control-group" style="border-top: 4px solid var(--danger);">
-            <div class="label-row" style="color: var(--danger);">
-                <span>CARGA B (n2)</span>
-                <span><span id="v-n2">20</span>k ciclos</span>
-            </div>
-            <input type="range" id="sl-n2" min="1" max="500" value="20">
-            <div class="label-row">
-                <span>Esfuerzo (&sigma;2)</span>
-                <span><span id="v-s2">400</span> MPa</span>
-            </div>
-            <input type="range" id="sl-s2" min="100" max="550" value="400">
+        <h3 style="margin-bottom:10px;">Esquema de Cargas</h3>
+        <table id="load-table">
+            <thead>
+                <tr>
+                    <th>Bloque</th>
+                    <th>$\sigma_a$ (MPa)</th>
+                    <th>$n$ (ciclos)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="load-body">
+                </tbody>
+        </table>
+        <button class="btn btn-add" onclick="addRow()">+ Añadir Bloque de Carga</button>
+        
+        <div style="margin-top:30px; font-size: 13px; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:15px;">
+            Configuración: Acero Baja Aleación (S<sub>ut</sub> = 600 MPa). Límite de fatiga estimado a $10^6$ ciclos.
         </div>
     </div>
 </div>
 
 <script>
-    const update = () => {
-        const n1 = parseFloat(document.getElementById('sl-n1').value);
-        const s1 = parseFloat(document.getElementById('sl-s1').value);
-        const n2 = parseFloat(document.getElementById('sl-n2').value);
-        const s2 = parseFloat(document.getElementById('sl-s2').value);
+    let snChart;
+    const loadData = [
+        { stress: 450, cycles: 5000 },
+        { stress: 300, cycles: 20000 }
+    ];
 
-        // Actualizar textos
-        document.getElementById('v-n1').innerText = n1;
-        document.getElementById('v-s1').innerText = s1;
-        document.getElementById('v-n2').innerText = n2;
-        document.getElementById('v-s2').innerText = s2;
-
-        // Cálculo de vida Ni (Modelo simplificado)
-        const getLife = (s) => s < 180 ? 1e9 : Math.pow(10, (Math.log10(s) - 3.15) / -0.12);
-
-        const d1 = (n1 * 1000) / getLife(s1);
-        const d2 = (n2 * 1000) / getLife(s2);
-        const totalD = d1 + d2;
-
-        const dDisplay = document.getElementById('display-d');
-        const mDisplay = document.getElementById('display-msg');
-
-        dDisplay.innerText = totalD.toFixed(4);
-
-        if (totalD >= 1) {
-            dDisplay.style.color = '#ff6b6b';
-            mDisplay.innerText = 'ESTADO: FALLA';
-            mDisplay.style.color = '#ff6b6b';
-        } else {
-            dDisplay.style.color = '#51cf66';
-            mDisplay.innerText = 'ESTADO: SEGURO';
-            mDisplay.style.color = '#51cf66';
-        }
+    window.onload = () => {
+        renderFormula();
+        initChart();
+        buildTable();
+        calculate();
     };
 
-    document.querySelectorAll('input').forEach(i => i.addEventListener('input', update));
-    update();
+    function renderFormula() {
+        const el = document.getElementById('formula');
+        katex.render("D = \\sum_{i=1}^{k} \\frac{n_i}{N_i} < 1.0", el);
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('snChart').getContext('2d');
+        const snCurve = [];
+        // Generar curva S-N teórica
+        for(let s = 100; s <= 600; s += 20) {
+            snCurve.push({x: getLife(s), y: s});
+        }
+
+        snChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Límite de Vida (S-N)',
+                    data: snCurve,
+                    showLine: true,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 0
+                }, {
+                    label: 'Bloques de Carga',
+                    data: [],
+                    backgroundColor: '#ef4444',
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                scales: {
+                    x: { type: 'logarithmic', title: {display:true, text:'Ciclos (N)'}, min: 1000 },
+                    y: { title: {display:true, text:'Esfuerzo σ (MPa)'}, min: 0 }
+                }
+            }
+        });
+    }
+
+    function getLife(s) {
+        if (s < 180) return 1e8; // Límite de resistencia
+        return Math.pow(10, (Math.log10(s) - 3.15) / -0.12);
+    }
+
+    function buildTable() {
+        const body = document.getElementById('load-body');
+        body.innerHTML = '';
+        loadData.forEach((row, index) => {
+            body.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><input type="number" value="${row.stress}" onchange="updateVal(${index}, 'stress', this.value)"></td>
+                    <td><input type="number" value="${row.cycles}" onchange="updateVal(${index}, 'cycles', this.value)"></td>
+                    <td><button class="btn btn-del" onclick="removeRow(${index})">✕</button></td>
+                </tr>
+            `;
+        });
+    }
+
+    function addRow() {
+        loadData.push({ stress: 300, cycles: 1000 });
+        buildTable();
+        calculate();
+    }
+
+    function removeRow(index) {
+        loadData.splice(index, 1);
+        buildTable();
+        calculate();
+    }
+
+    function updateVal(index, field, val) {
+        loadData[index][field] = parseFloat(val);
+        calculate();
+    }
+
+    function calculate() {
+        let totalD = 0;
+        let points = [];
+        let maxStress = 0;
+
+        loadData.forEach(block => {
+            let Ni = getLife(block.stress);
+            totalD += block.cycles / Ni;
+            points.push({x: Ni, y: block.stress});
+            if(block.stress > maxStress) maxStress = block.stress;
+        });
+
+        // Actualizar UI
+        document.getElementById('total-damage').innerText = totalD.toFixed(4);
+        const statusBox = document.getElementById('status-box');
+        const feedback = document.getElementById('feedback-text');
+
+        if (totalD >= 1) {
+            statusBox.className = 'status-card status-fail';
+            document.getElementById('status-label').innerText = 'CRÍTICO: FALLA POR FATIGA';
+            feedback.innerText = "El daño acumulado ha superado la unidad. Se espera una nucleación de grietas y propagación rápida.";
+        } else {
+            statusBox.className = 'status-card status-safe';
+            document.getElementById('status-label').innerText = 'ESTRUCTURA ÍNTEGRA';
+            if (maxStress > 500) {
+                feedback.innerText = "Cuidado: Tienes bloques con esfuerzos cercanos a la resistencia última (Sut). Fatiga de bajo número de ciclos (LCF) dominante.";
+            } else {
+                feedback.innerText = "La operación se encuentra dentro de los márgenes de seguridad. El daño es progresivo pero controlado.";
+            }
+        }
+
+        // Actualizar Gráfico
+        snChart.data.datasets[1].data = points;
+        snChart.update();
+    }
 </script>
 
 </body>
