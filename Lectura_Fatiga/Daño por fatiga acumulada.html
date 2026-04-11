@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --danger: #d93025;
+            --success: #188038;
+            --bg: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: transparent;
+            color: #3c4043;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            max-width: 1000px;
+            margin: auto;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            background: var(--bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .theory-side { padding: 30px; line-height: 1.6; }
+        .sim-side { padding: 20px; background: #f8f9fa; border-left: 1px solid #dadce0; }
+        
+        .status-display {
+            background: #202124;
+            color: #fff;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .damage-value {
+            font-size: 2.5rem;
+            font-family: 'Courier New', monospace;
+            display: block;
+            margin: 10px 0;
+        }
+        .control-group {
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        input[type=range] { width: 100%; margin: 10px 0; cursor: pointer; }
+        .label-row { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: bold; }
+        
+        @media (max-width: 850px) {
+            .container { grid-template-columns: 1fr; }
+            .sim-side { border-left: none; border-top: 1px solid #dadce0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="theory-side">
+        <h2 style="color: var(--primary); margin-top: 0;">Regla de Palmgren-Miner</h2>
+        <p>Esta regla establece que el daño por fatiga es acumulativo y lineal. Si sometemos una pieza a distintos niveles de esfuerzo, la vida útil se agota proporcionalmente.</p>
+        <div style="background: #e8f0fe; padding: 15px; border-radius: 4px; text-align: center; font-size: 1.2rem;">
+            <strong>&Sigma; (n<sub>i</sub> / N<sub>i</sub>) = D</strong>
+        </div>
+        <p>Donde:</p>
+        <ul>
+            <li><b>n<sub>i</sub>:</b> Ciclos aplicados a un esfuerzo específico.</li>
+            <li><b>N<sub>i</sub>:</b> Ciclos hasta la falla para ese esfuerzo.</li>
+        </ul>
+        <p>Cuando <b>D &ge; 1.0</b>, se predice la falla catastrófica del componente.</p>
+    </div>
+
+    <div class="sim-side">
+        <div class="status-display">
+            <span style="color: #9aa0a6; font-size: 0.8rem;">DAÑO ACUMULADO TOTAL</span>
+            <span id="display-d" class="damage-value">0.0000</span>
+            <div id="display-msg" style="font-weight: bold;">ESTADO: NOMINAL</div>
+        </div>
+
+        <div class="control-group" style="border-top: 4px solid var(--primary);">
+            <div class="label-row" style="color: var(--primary);">
+                <span>CARGA A (n1)</span>
+                <span><span id="v-n1">50</span>k ciclos</span>
+            </div>
+            <input type="range" id="sl-n1" min="1" max="1000" value="50">
+            <div class="label-row">
+                <span>Esfuerzo (&sigma;1)</span>
+                <span><span id="v-s1">250</span> MPa</span>
+            </div>
+            <input type="range" id="sl-s1" min="100" max="550" value="250">
+        </div>
+
+        <div class="control-group" style="border-top: 4px solid var(--danger);">
+            <div class="label-row" style="color: var(--danger);">
+                <span>CARGA B (n2)</span>
+                <span><span id="v-n2">20</span>k ciclos</span>
+            </div>
+            <input type="range" id="sl-n2" min="1" max="500" value="20">
+            <div class="label-row">
+                <span>Esfuerzo (&sigma;2)</span>
+                <span><span id="v-s2">400</span> MPa</span>
+            </div>
+            <input type="range" id="sl-s2" min="100" max="550" value="400">
+        </div>
+    </div>
+</div>
+
+<script>
+    const update = () => {
+        const n1 = parseFloat(document.getElementById('sl-n1').value);
+        const s1 = parseFloat(document.getElementById('sl-s1').value);
+        const n2 = parseFloat(document.getElementById('sl-n2').value);
+        const s2 = parseFloat(document.getElementById('sl-s2').value);
+
+        // Actualizar textos
+        document.getElementById('v-n1').innerText = n1;
+        document.getElementById('v-s1').innerText = s1;
+        document.getElementById('v-n2').innerText = n2;
+        document.getElementById('v-s2').innerText = s2;
+
+        // Cálculo de vida Ni (Modelo simplificado)
+        const getLife = (s) => s < 180 ? 1e9 : Math.pow(10, (Math.log10(s) - 3.15) / -0.12);
+
+        const d1 = (n1 * 1000) / getLife(s1);
+        const d2 = (n2 * 1000) / getLife(s2);
+        const totalD = d1 + d2;
+
+        const dDisplay = document.getElementById('display-d');
+        const mDisplay = document.getElementById('display-msg');
+
+        dDisplay.innerText = totalD.toFixed(4);
+
+        if (totalD >= 1) {
+            dDisplay.style.color = '#ff6b6b';
+            mDisplay.innerText = 'ESTADO: FALLA';
+            mDisplay.style.color = '#ff6b6b';
+        } else {
+            dDisplay.style.color = '#51cf66';
+            mDisplay.innerText = 'ESTADO: SEGURO';
+            mDisplay.style.color = '#51cf66';
+        }
+    };
+
+    document.querySelectorAll('input').forEach(i => i.addEventListener('input', update));
+    update();
+</script>
+
+</body>
+</html>
