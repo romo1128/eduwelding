@@ -158,3 +158,180 @@
         <li><b>Frecuencia natural ($\omega_0$):</b> La frecuencia a la que el sistema "quiere" oscilar libremente. Definida como $\omega_0^2 = k/m$.</li>
         <li><b>Factor de amortiguamiento ($\gamma$):</b> Determina qué tan rápido se disipa la energía. Definido como $\gamma = b / 2m$.</li>
         <li><b>Frecuencia impulsora ($\omega$):</b> La frecuencia de la fuerza externa que estamos aplicando.</li>
+    </ul>
+
+    <div class="sim-container" id="physics-lab">
+        <div class="sim-header">
+            <h3 style="margin: 0; color: white;">Laboratorio Virtual: Resonancia Mecánica</h3>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #a5b4fc;">Modifica la frecuencia externa para encontrar la resonancia</p>
+        </div>
+        
+        <div class="sim-body">
+            <div class="sim-controls">
+                <div>
+                    <label style="color: var(--blue-600);">Frecuencia Natural del Sistema ($\omega_0$) <span id="v_w0">3.0 rad/s</span></label>
+                    <input type="range" id="i_w0" min="1" max="5" step="0.1" value="3.0">
+                </div>
+                <div>
+                    <label style="color: var(--rose-600);">Frecuencia de la Fuerza Externa ($\omega$) <span id="v_w">1.5 rad/s</span></label>
+                    <input type="range" id="i_w" min="0.1" max="6" step="0.1" value="1.5">
+                </div>
+                <div>
+                    <label style="color: var(--amber-500);">Factor de Amortiguamiento ($\gamma$) <span id="v_g">0.2</span></label>
+                    <input type="range" id="i_g" min="0.05" max="1.5" step="0.05" value="0.2">
+                </div>
+            </div>
+
+            <div class="sim-dash">
+                <div class="sim-box" id="box_amp">
+                    <div style="font-size: 0.7rem; font-weight: bold; color: #64748b;">AMPLITUD MÁXIMA ($A$)</div>
+                    <div id="v_amp" style="font-size: 1.4rem; font-weight: 800; color: var(--indigo-600);">0.00 m</div>
+                </div>
+                <div class="sim-box">
+                    <div style="font-size: 0.7rem; font-weight: bold; color: #64748b;">DESFASE ($\phi$)</div>
+                    <div id="v_phi" style="font-size: 1.4rem; font-weight: 800; color: var(--slate-900);">0.0°</div>
+                </div>
+            </div>
+
+            <div class="graph-container">
+                <span style="font-size: 0.8rem; font-weight: bold; color: #64748b;">1. Curva de Respuesta (Amplitud vs Frecuencia Externa $\omega$)</span>
+                <svg viewBox="0 0 500 200" style="width: 100%; height: auto; overflow: visible; margin-top: 10px;">
+                    <line x1="40" y1="180" x2="480" y2="180" stroke="#cbd5e1" stroke-width="2"/>
+                    <line x1="40" y1="10" x2="40" y2="180" stroke="#cbd5e1" stroke-width="2"/>
+                    <path id="res_curve" fill="none" stroke="var(--blue-600)" stroke-width="3" opacity="0.7"/>
+                    <line id="line_w0" x1="250" y1="10" x2="250" y2="180" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/>
+                    <circle id="res_pt" r="6" fill="var(--rose-600)" stroke="white" stroke-width="2"/>
+                    <text x="475" y="195" font-size="12" fill="#64748b" text-anchor="end">$\omega$</text>
+                    <text x="35" y="20" font-size="12" fill="#64748b" text-anchor="end">A</text>
+                    <text id="lbl_w0" x="250" y="195" font-size="10" fill="#94a3b8" text-anchor="middle">$\omega_0$</text>
+                </svg>
+            </div>
+
+            <div class="graph-container">
+                <span style="font-size: 0.8rem; font-weight: bold; color: #64748b;">2. Estado Estacionario (Posición vs Tiempo)</span>
+                <svg viewBox="0 0 500 150" style="width: 100%; height: auto; overflow: visible; margin-top: 10px;">
+                    <rect x="40" y="10" width="440" height="120" fill="#f8fafc" rx="4"/>
+                    <line x1="40" y1="70" x2="480" y2="70" stroke="#cbd5e1" stroke-width="1"/>
+                    <line x1="40" y1="10" x2="40" y2="130" stroke="#cbd5e1" stroke-width="2"/>
+                    <path id="force_wave" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="4"/>
+                    <path id="pos_wave" fill="none" stroke="var(--indigo-600)" stroke-width="3"/>
+                    <text x="475" y="145" font-size="12" fill="#64748b" text-anchor="end">t</text>
+                    <text x="35" y="20" font-size="12" fill="#64748b" text-anchor="end">x(t)</text>
+                </svg>
+                <div style="font-size: 0.75rem; text-align: center; margin-top: 5px; color: #94a3b8;">
+                    <span style="display:inline-block; width:10px; height:10px; background:var(--indigo-600); margin-right:5px; border-radius:2px;"></span> Posición de la masa 
+                    <span style="display:inline-block; width:10px; height:2px; background:#cbd5e1; margin-left:15px; margin-right:5px; vertical-align:middle;"></span> Fuerza externa
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            const updatePhysicsSim = () => {
+                const w0 = parseFloat(document.getElementById('i_w0').value);
+                const w = parseFloat(document.getElementById('i_w').value);
+                const g = parseFloat(document.getElementById('i_g').value);
+                
+                document.getElementById('v_w0').textContent = w0.toFixed(1) + ' rad/s';
+                document.getElementById('v_w').textContent = w.toFixed(1) + ' rad/s';
+                document.getElementById('v_g').textContent = g.toFixed(2);
+
+                // Ecuación de Amplitud (asumiendo F0/m = 1)
+                const calcAmp = (omega) => 1 / Math.sqrt(Math.pow(w0*w0 - omega*omega, 2) + Math.pow(2*g*omega, 2));
+                const A = calcAmp(w);
+                
+                // Cálculo del Desfase (Fase)
+                let phi = Math.atan2(2*g*w, w0*w0 - w*w);
+                if (phi < 0) phi += Math.PI; // Mantener entre 0 y Pi
+
+                document.getElementById('v_amp').textContent = A.toFixed(2) + ' m';
+                document.getElementById('v_phi').textContent = (phi * 180 / Math.PI).toFixed(1) + '°';
+
+                // Efectos visuales si hay resonancia
+                const boxAmp = document.getElementById('box_amp');
+                if(A > 2.0) {
+                    boxAmp.style.background = '#fee2e2';
+                    boxAmp.style.borderColor = 'var(--rose-600)';
+                } else {
+                    boxAmp.style.background = '#ffffff';
+                    boxAmp.style.borderColor = '#e2e8f0';
+                }
+
+                // Dibujar Curva de Resonancia
+                const mapX = (omega) => 40 + (omega / 6) * 440;
+                // Ajustamos el eje Y para que el pico máximo (cuando g=0.05) no se salga. Max teorico ~ 3.3
+                const mapY = (amp) => 180 - (amp / 3.5) * 160; 
+
+                let dRes = `M ${mapX(0)} ${mapY(calcAmp(0))}`;
+                for(let ow = 0; ow <= 6; ow += 0.05) {
+                    dRes += ` L ${mapX(ow)} ${mapY(calcAmp(ow))}`;
+                }
+                document.getElementById('res_curve').setAttribute('d', dRes);
+                
+                // Punto actual y línea de w0
+                document.getElementById('res_pt').setAttribute('cx', mapX(w));
+                document.getElementById('res_pt').setAttribute('cy', Math.max(20, mapY(A))); // Limitar visualmente
+                document.getElementById('line_w0').setAttribute('x1', mapX(w0));
+                document.getElementById('line_w0').setAttribute('x2', mapX(w0));
+                document.getElementById('lbl_w0').setAttribute('x', mapX(w0));
+
+                // Dibujar Serie de Tiempo
+                // x(t) = A * cos(w*t - phi)
+                // Fuerza(t) = F0 * cos(w*t)  (escalada visualmente)
+                let dPos = `M 40 ${70 - (A * Math.cos(-phi)) * 20}`;
+                let dFor = `M 40 ${70 - (1 * Math.cos(0)) * 20}`; // F0/m visual = 1
+                
+                for(let t = 0; t <= 440; t += 2) {
+                    // t real escalado para la vista
+                    const t_real = t * 0.05;
+                    const x_val = A * Math.cos(w * t_real - phi);
+                    const f_val = 1 * Math.cos(w * t_real);
+                    
+                    // Limitar amplitud visualmente para que no se salga del SVG
+                    const viz_x = Math.max(-2.8, Math.min(2.8, x_val));
+                    
+                    dPos += ` L ${40 + t} ${70 - viz_x * 20}`;
+                    dFor += ` L ${40 + t} ${70 - f_val * 20}`;
+                }
+                document.getElementById('pos_wave').setAttribute('d', dPos);
+                document.getElementById('force_wave').setAttribute('d', dFor);
+            };
+            
+            document.querySelectorAll('#physics-lab input').forEach(i => i.addEventListener('input', updatePhysicsSim));
+            setTimeout(updatePhysicsSim, 500);
+        </script>
+    </div>
+    <h2>Análisis de la Amplitud y el Desfase</h2>
+    <p>La solución a la ecuación diferencial para el estado estacionario (después de que los transitorios iniciales se han disipado) nos da la posición de la masa en función del tiempo:</p>
+
+    <div class="formula-block">
+        $$x(t) = A \cos(\omega t - \phi)$$
+    </div>
+
+    <p>Donde la <b>Amplitud ($A$)</b> depende directamente de la relación entre la frecuencia de la fuerza externa y la frecuencia natural del sistema:</p>
+
+    <div class="formula-block">
+        $$A(\omega) = \frac{F_0 / m}{\sqrt{(\omega_0^2 - \omega^2)^2 + (2\gamma\omega)^2}}$$
+    </div>
+
+    <div class="highlight-box">
+        <b>El Fenómeno de la Resonancia:</b> Si observas el denominador de la ecuación de amplitud, notarás que si la frecuencia externa ($\omega$) es igual a la frecuencia natural ($\omega_0$), el primer término se cancela. Esto significa que la amplitud se dispara, limitada únicamente por el factor de amortiguamiento ($\gamma$). A este pico máximo de respuesta se le llama resonancia.
+    </div>
+
+    <h3>El Ángulo de Fase ($\phi$)</h3>
+    <p>El sistema no siempre se mueve sincronizado con la fuerza que lo empuja. Existe un retraso conocido como ángulo de fase, calculado como:</p>
+
+    <div class="formula-block">
+        $$\tan(\phi) = \frac{2\gamma\omega}{\omega_0^2 - \omega^2}$$
+    </div>
+
+    <p>Puedes verificar este comportamiento en el simulador analizando la segunda gráfica:</p>
+    <ul>
+        <li><b>Bajas frecuencias ($\omega \ll \omega_0$):</b> El desfase $\phi \approx 0^\circ$. La masa se mueve <i>en fase</i> con la fuerza.</li>
+        <li><b>En resonancia ($\omega = \omega_0$):</b> El desfase es exactamente $\phi = 90^\circ$ ($\pi/2$). La fuerza siempre empuja a la masa en la dirección de su velocidad máxima, inyectando la máxima energía posible.</li>
+        <li><b>Altas frecuencias ($\omega \gg \omega_0$):</b> El desfase se acerca a $\phi = 180^\circ$ ($\pi$). La masa se mueve en la dirección opuesta a la fuerza aplicada, dominada por la inercia.</li>
+    </ul>
+
+</div>
+
+</body>
+</html>
