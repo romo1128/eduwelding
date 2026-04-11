@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oscilaciones Forzadas y Resonancia</title>
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']]
+            }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --slate-900: #0f172a;
+            --slate-700: #334155;
+            --blue-600: #2563eb;
+            --indigo-600: #4f46e5;
+            --rose-600: #e11d48;
+            --amber-500: #f59e0b;
+            --bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            color: var(--slate-700);
+            background: var(--bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .content-wrapper {
+            max-width: 850px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1, h2, h3 { color: var(--slate-900); letter-spacing: -0.02em; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-top: 40px; }
+        
+        p { margin-bottom: 1.5rem; }
+        b, strong { color: var(--slate-900); }
+
+        .formula-block {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 25px 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--indigo-600);
+        }
+
+        .highlight-box {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Estilos del Simulador Incrustado */
+        .sim-container {
+            margin: 40px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sim-header {
+            background: var(--slate-900);
+            padding: 20px;
+            color: white;
+            text-align: center;
+            border-bottom: 4px solid var(--indigo-600);
+        }
+
+        .sim-body { padding: 20px; }
+        
+        .sim-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .sim-controls label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #cbd5e1;
+            border-radius: 5px;
+            appearance: none;
+        }
+
+        .sim-dash {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .sim-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .graph-container {
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="content-wrapper">
+    <h1>Oscilaciones Forzadas y Resonancia</h1>
+    
+    <p>En el mundo real, los sistemas oscilantes (como un péndulo, un puente colgante o un circuito RLC) no vibran eternamente. Debido a las fuerzas de fricción, su amplitud disminuye gradualmente, un fenómeno conocido como <b>oscilación amortiguada</b>.</p>
+
+    <p>Sin embargo, podemos mantener el sistema oscilando si aplicamos una fuerza externa periódica. Cuando hacemos esto, estamos forzando al sistema a vibrar a la frecuencia de la fuerza aplicada, no a su propia frecuencia natural. A esto se le llama <b>oscilación forzada</b>.</p>
+
+    <h2>La Ecuación de Movimiento</h2>
+    <p>Consideremos un sistema masa-resorte con una constante de amortiguamiento $b$, impulsado por una fuerza externa sinusoidal $F(t) = F_0 \cos(\omega t)$. La segunda ley de Newton establece que la suma de las fuerzas (restauradora, amortiguadora y externa) es igual a la masa por la aceleración:</p>
+
+    <div class="formula-block">
+        $$m \frac{d^2x}{dt^2} + b \frac{dx}{dt} + kx = F_0 \cos(\omega t)$$
+    </div>
+
+    <p>Dividiendo toda la ecuación entre la masa $m$, introducimos tres parámetros fundamentales que definen el comportamiento de cualquier sistema oscilante:</p>
+    <ul>
+        <li><b>Frecuencia natural ($\omega_0$):</b> La frecuencia a la que el sistema "quiere" oscilar libremente. Definida como $\omega_0^2 = k/m$.</li>
+        <li><b>Factor de amortiguamiento ($\gamma$):</b> Determina qué tan rápido se disipa la energía. Definido como $\gamma = b / 2m$.</li>
+        <li><b>Frecuencia impulsora ($\omega$):</b> La frecuencia de la fuerza externa que estamos aplicando.</li>
