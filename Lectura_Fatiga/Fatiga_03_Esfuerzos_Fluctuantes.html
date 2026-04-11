@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama S-N y Criterio de Goodman</title>
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']]
+            }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --slate-900: #0f172a;
+            --slate-700: #334155;
+            --blue-600: #2563eb;
+            --red-600: #dc2626;
+            --emerald-500: #10b981;
+            --bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            color: var(--slate-700);
+            background: var(--bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .content-wrapper {
+            max-width: 850px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1, h2, h3 { color: var(--slate-900); letter-spacing: -0.02em; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-top: 40px; }
+        
+        p { margin-bottom: 1.5rem; }
+        b, strong { color: var(--slate-900); }
+
+        figure {
+            margin: 30px 0;
+            text-align: center;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        figcaption {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .formula-block {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 25px 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--blue-600);
+        }
+
+        .highlight-box {
+            background: #fff4e5;
+            border-left: 4px solid #f59e0b;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Estilos del Simulador Incrustado */
+        .sim-container {
+            margin: 50px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sim-header {
+            background: var(--slate-900);
+            padding: 20px;
+            color: white;
+            text-align: center;
+            border-bottom: 4px solid var(--emerald-500);
+        }
+
+        .sim-body { padding: 20px; }
+        
+        .sim-controls label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #cbd5e1;
+            border-radius: 5px;
+            appearance: none;
+            margin-bottom: 20px;
+        }
+
+        .sim-dash {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .sim-box {
+            flex: 1;
+            min-width: 140px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8fafc;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="content-wrapper">
+    <h1>Efecto del Esfuerzo Medio y Criterio de Goodman</h1>
+    
+    <p>El diagrama S-N se genera normalmente con esfuerzos completamente invertidos, pero puede incluir un esfuerzo medio. La siguiente figura muestra curvas S-N (esfuerzo alternante vs. vida a fatiga) para diferentes esfuerzos medios. La curva superior es para esfuerzo medio cero. Esfuerzos medios más altos reducen el límite de resistencia y la vida útil para un esfuerzo alternante dado.</p>
+
+    <figure>
+        <img src="https://eduwelding.com/draftfile.php/2495/user/draft/983263665/image%20%284%29.png" alt="Curvas S-N para niveles crecientes de esfuerzo medio">
+        <figcaption>Curvas S-N características para niveles crecientes de esfuerzo medio.</figcaption>
+    </figure>
+
+    <h2>Diagrama de Esfuerzo Fluctuante</h2>
+    <p>Históricamente, los datos de esfuerzos fluctuantes se han graficado de muchas formas, como el diagrama de Goodman, el modificado-Goodman, el de fatiga maestro o el de Haigh. Actualmente, el medio más simple y común es el diagrama de esfuerzo fluctuante, que grafica el esfuerzo alternante ($\sigma_a$) contra el esfuerzo medio ($\sigma_m$).</p>
+    
+    <p>De la familia de curvas S-N que se graficaron previamente, se pueden extraer combinaciones de $\sigma_a$ y $\sigma_m$ con igual vida a fatiga y trazarlas como curvas de vida constante en el diagrama de esfuerzo fluctuante. Este diagrama muestra que, para cualquier vida deseada, un aumento en el esfuerzo medio debe ir acompañado de una disminución en el esfuerzo alternante.</p>
+
+    <figure>
+        <img src="https://eduwelding.com/draftfile.php/2495/user/draft/983263665/image%20%285%29.png" alt="Curvas de vida constante">
+        <figcaption>Curvas de vida constante en el diagrama de esfuerzo fluctuante.</figcaption>
+    </figure>
+
+    <h2>La Línea de Goodman Modificada</h2>
+    <p>Los puntos de datos de la curva de vida constante de $10^6$ ciclos reflejan la dispersión y marcan la frontera predicha entre la vida finita y la vida infinita en aceros. Para lograr vida infinita, la combinación de esfuerzo alternante ($\sigma_a$) y esfuerzo medio ($\sigma_m$) debe caer dentro del área delimitada por estos puntos.</p>
+
+    <p>Un criterio de diseño conservador común para el límite de vida infinita es una línea recta que une el límite de resistencia con la resistencia última. Esta línea, conocida por simplicidad como <b>línea de Goodman</b>, conecta el límite de resistencia cuando el esfuerzo medio es cero, y la resistencia última cuando el esfuerzo alternante es cero.</p>
+
+    <div class="formula-block">
+        $$\frac{\sigma_a}{S_e}+\frac{\sigma_m}{S_{ut}}=1$$
+    </div>
+
+    <figure>
+        <img src="https://eduwelding.com/draftfile.php/2495/user/draft/983263665/image%20%286%29.png" alt="Línea de Goodman">
+        <figcaption>Diagrama de esfuerzo fluctuante que muestra la línea de Goodman como un criterio de fatiga de vida infinita.</figcaption>
+    </figure>
+
+    <h3>Factor de Seguridad ($n_f$)</h3>
+    <p>Para usar la línea de Goodman como criterio de diseño, se traza una línea de carga desde el origen a través de un punto de esfuerzo dado $(\sigma_m,\sigma_a)$, asumiendo que el aumento de esfuerzo mantendrá constante la relación $\sigma_a/\sigma_m$.</p>
+    
+    <p>El factor de seguridad con respecto a la vida infinita se define como la proporción de la distancia a lo largo de esta línea. Matemáticamente, al aplicar este factor a los esfuerzos en la ecuación de la línea de Goodman y despejándolo, obtenemos:</p>
+
+    <div class="formula-block">
+        $$n_f=\left(\frac{\sigma_a}{S_e}+\frac{\sigma_m}{S_{ut}}\right)^{-1},\sigma_m\ge0$$
+    </div>
+
+    <div class="highlight-box">
+        <b>Nota de Diseño:</b> Los esfuerzos deben incluir el <strong>factor de concentración de fatiga</strong> aplicable ($K_f$). Un factor de seguridad $n_f > 1$ predice vida infinita, y $n_f < 1$ predice vida finita.
+    </div>
+
+    <div class="sim-container" id="fatigue-mobile-lab">
+        <div class="sim-header">
+            <h3 style="margin: 0; color: white;">Laboratorio Virtual: Goodman y S-N</h3>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #a7f3d0;">Interacciona con los esfuerzos para visualizar el punto de falla</p>
+        </div>
+        
+        <div class="sim-body">
+            <div class="sim-controls">
+                <label style="color: var(--blue-600);">Esfuerzo Medio ($\sigma_m$) <span id="m_v_sm">100 MPa</span></label>
+                <input type="range" id="m_i_sm" min="0" max="450" value="100">
+                
+                <label style="color: var(--red-600);">Esfuerzo Alternante ($\sigma_a$) <span id="m_v_sa">200 MPa</span></label>
+                <input type="range" id="m_i_sa" min="50" max="500" value="200">
+            </div>
+
+            <div class="sim-dash">
+                <div class="sim-box">
+                    <span style="font-size: 0.7rem; font-weight: bold; color: #64748b;">ONDA DE CARGA</span>
+                    <svg viewBox="0 0 200 60" style="width: 100%; height: 50px; margin-top: 5px;">
+                        <line x1="0" y1="30" x2="200" y2="30" stroke="#cbd5e1" stroke-width="1"/>
+                        <path id="m_wave" fill="none" stroke="var(--slate-900)" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div id="m_status" class="sim-box" style="background: var(--emerald-500); color: white; border:none;">
+                    <div style="font-size: 0.7rem; font-weight: bold; opacity: 0.9;">VIDA ESTIMADA (N)</div>
+                    <div id="m_v_vida" style="font-size: 1.5rem; font-weight: 800; font-family: monospace; margin-top: 5px;">---</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="text-align: center; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
+                    <span style="font-size: 0.8rem; font-weight: bold; color: #64748b;">1. Diagrama S-N</span>
+                    <svg viewBox="0 0 400 250" style="width: 100%; height: auto; overflow: visible; margin-top: 10px;">
+                        <line x1="40" y1="220" x2="380" y2="220" stroke="#cbd5e1" stroke-width="2"/>
+                        <line x1="40" y1="20" x2="40" y2="220" stroke="#cbd5e1" stroke-width="2"/>
+                        <line x1="320" y1="20" x2="320" y2="220" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="4"/>
+                        <path id="m_sn_curve" fill="none" stroke="var(--blue-600)" stroke-width="3"/>
+                        <circle id="m_sn_pt" r="7" fill="var(--red-600)" stroke="white" stroke-width="2"/>
+                        <text x="375" y="215" font-size="12" fill="#64748b" text-anchor="end">N</text>
+                        <text x="35" y="30" font-size="12" fill="#64748b" text-anchor="end">$\sigma_a$</text>
+                    </svg>
+                </div>
+                
+                <div style="text-align: center; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px;">
+                    <span style="font-size: 0.8rem; font-weight: bold; color: #64748b;">2. Diagrama de Goodman</span>
+                    <svg viewBox="0 0 400 250" style="width: 100%; height: auto; overflow: visible; margin-top: 10px;">
+                        <line x1="40" y1="220" x2="380" y2="220" stroke="#cbd5e1" stroke-width="2"/>
+                        <line x1="40" y1="20" x2="40" y2="220" stroke="#cbd5e1" stroke-width="2"/>
+                        <line x1="40" y1="100" x2="340" y2="220" stroke="var(--emerald-500)" stroke-width="3" stroke-dasharray="5"/>
+                        <circle id="m_gn_pt" r="7" fill="var(--red-600)" stroke="white" stroke-width="2"/>
+                        <text x="340" y="238" font-size="12" text-anchor="middle" fill="var(--emerald-500)">$S_{ut}$</text>
+                        <text x="35" y="105" font-size="12" text-anchor="end" fill="var(--emerald-500)">$S_e$</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            const updateFatigueSim = () => {
+                const sm = parseFloat(document.getElementById('m_i_sm').value);
+                const sa = parseFloat(document.getElementById('m_i_sa').value);
+                document.getElementById('m_v_sm').textContent = sm + ' MPa';
+                document.getElementById('m_v_sa').textContent = sa + ' MPa';
+                
+                const sut = 600, seB = 320;
+                const seE = seB * (1 - (sm / sut));
+                const s1k = 0.9 * sut - sm;
+                
+                const gX = (n) => 40 + ((n - 3) * 280 / 3);
+                const gY = (s) => 220 - (s * 180 / 600);
+                
+                let d = 'M ' + gX(3) + ' ' + gY(s1k);
+                for(let i = 0; i <= 3; i += 0.1) {
+                    let n = 3 + i, s = s1k * Math.pow(seE / s1k, i / 3);
+                    if(n <= 6) d += ' L ' + gX(n) + ' ' + gY(s);
+                }
+                d += ' L 380 ' + gY(seE);
+                document.getElementById('m_sn_curve').setAttribute('d', d);
+                
+                let lN = 3 + 3 * (Math.log(sa / s1k) / Math.log(seE / s1k));
+                let pX, pY, vT, isI = false;
+                
+                if(sa >= s1k) {
+                    pX = gX(3); pY = gY(sa); vT = 'FALLA PLÁSTICA';
+                } else if(sa <= seE) {
+                    pX = gX(6.5); pY = gY(seE); vT = 'INFINITA'; isI = true;
+                } else {
+                    pX = gX(lN); pY = gY(sa);
+                    vT = Math.pow(10, lN).toLocaleString(undefined, {maximumFractionDigits: 0});
+                }
+                
+                document.getElementById('m_sn_pt').setAttribute('cx', pX);
+                document.getElementById('m_sn_pt').setAttribute('cy', pY);
+                document.getElementById('m_gn_pt').setAttribute('cx', 40 + (sm * 300 / 600));
+                document.getElementById('m_gn_pt').setAttribute('cy', 220 - (sa * 180 / 400));
+                document.getElementById('m_v_vida').textContent = vT;
+                document.getElementById('m_status').style.background = isI ? 'var(--emerald-500)' : 'var(--red-600)';
+                
+                let w = 'M 0 ' + (30 - sm / 15);
+                for(let t = 0; t <= 200; t += 5) w += ' L ' + t + ' ' + (30 - (sm + sa * Math.sin(t * 0.1)) / 15);
+                document.getElementById('m_wave').setAttribute('d', w);
+            };
+            
+            document.querySelectorAll('#fatigue-mobile-lab input').forEach(i => i.addEventListener('input', updateFatigueSim));
+            setTimeout(updateFatigueSim, 500);
+        </script>
+    </div>
+    <h2>Análisis de Esfuerzos Normalizados y de Compresión</h2>
+    <p>Para evaluar qué tan bien se ajusta una curva a los datos, es útil normalizar el diagrama de esfuerzo fluctuante. Esto permite trazar datos de diferentes materiales en un mismo gráfico. El eje de ordenadas se normaliza como $S_a/S_e$ y el eje de abscisas como $S_m/S_{ut}$ (para tensión) o $S_m/S_{uc}$ (para compresión).</p>
+    
+    <p>La recta BC representa el criterio de Goodman modificado de falla. Observe que la existencia de esfuerzo medio en la región de compresión tiene poco efecto en el límite de resistencia a la fatiga.</p>
+
+    <figure>
+        <img src="https://eduwelding.com/draftfile.php/2495/user/draft/983263665/image%20%281%29.png" alt="Gráfica de fallas normalizada">
+        <figcaption>Gráfica normalizada de fallas de esfuerzos medios. La recta BC define el criterio de Goodman.</figcaption>
+    </figure>
+
+    <p>El gráfico anterior también revela un fenómeno interesante: los puntos de falla no indican una reducción en los esfuerzos alternantes a medida que aumentan los esfuerzos medios de compresión. De hecho, el esfuerzo medio de compresión no es perjudicial para la vida a fatiga, e incluso suele ser beneficioso. Para el esfuerzo medio negativo, el factor de seguridad se modela como una línea horizontal:</p>
+
+    <div class="formula-block">
+        $$n_f=\frac{S_e}{\sigma_a},\sigma_m<0$$
+    </div>
+
+    <h2>Verificación de Fluencia (Líneas de Langer)</h2>
+    <p>Es necesario verificar la fluencia, ya que puede ocurrir falla estática en el primer ciclo. Comparando el esfuerzo máximo con el límite elástico ($S_y$), el factor de seguridad contra la fluencia se calcula como:</p>
+
+    <div class="formula-block">
+        $$n_y=\frac{S_y}{\sigma_{max}}=\frac{S_y}{\sigma_a+\left|\sigma_m\right|}$$
+    </div>
+
+    <p>El valor absoluto del esfuerzo medio permite que la ecuación se aplique tanto para esfuerzos positivos como negativos. Al establecer $n_y = 1$ y trazar la ecuación $\sigma_a+|\sigma_m|=S_y$, se obtienen dos líneas diagonales conocidas como <b>líneas de Langer</b>.</p>
+
+    <p>La siguiente figura resume el espacio de diseño. Note que existe una zona en el lado de esfuerzo medio positivo donde la línea de fluencia cruza por dentro de la línea de fatiga. Esto indica que <b>es posible que ocurra fluencia en el primer ciclo, incluso cuando se predice vida infinita</b> a fatiga. Por ello, siempre es aconsejable verificar la fluencia.</p>
+
+    <figure>
+        <img src="https://eduwelding.com/draftfile.php/2495/user/draft/983263665/image%20%287%29.png" alt="Líneas de Langer y espacio de diseño">
+        <figcaption>Diagrama con líneas límite de fatiga y líneas límite de fluencia (Langer) que definen el espacio seguro de diseño.</figcaption>
+    </figure>
+
+</div>
+
+</body>
+</html>
