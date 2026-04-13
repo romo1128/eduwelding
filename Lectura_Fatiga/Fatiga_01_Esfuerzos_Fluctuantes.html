@@ -3,260 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flipbook: Análisis de Esfuerzos</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <title>Tópico 1: Caracterizando Esfuerzos Fluctuantes</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        :root {
-            --slate-900: #0f172a;
-            --slate-700: #334155;
-            --blue-600: #2563eb;
-            --red-600: #dc2626;
-            --bg: #f1f5f9;
-            --page-bg: #ffffff;
-        }
-
-        body {
-            background: var(--bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: 'Inter', system-ui, sans-serif;
-        }
-
-        /* Estructura del Flipbook */
-        .book {
-            position: relative;
-            width: 900px;
-            height: 600px;
-            perspective: 2000px;
-        }
-
-        .page {
-            position: absolute;
-            width: 50%;
-            height: 100%;
-            top: 0;
-            right: 0;
-            background: var(--page-bg);
-            transform-origin: left;
-            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
-            box-shadow: inset 3px 0 10px rgba(0,0,0,0.05);
-            z-index: 1;
-            padding: 30px;
-            box-sizing: border-box;
-            border: 1px solid #e2e8f0;
-            overflow-y: auto;
-            backface-visibility: hidden;
-        }
-
-        .page.flipped {
-            transform: rotateY(-180deg);
-        }
-
-        .content {
-            width: 100%;
-            height: auto;
-            backface-visibility: hidden;
-        }
-
-        .page.flipped .content {
-            transform: rotateY(-180deg);
-        }
-
-        /* Estilos del Simulador (Tu Código Adaptado) */
-        .sim-container {
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            background: #fff;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .sim-header {
-            background: var(--slate-900);
-            padding: 10px;
-            color: white;
-            text-align: center;
-        }
-
-        .sim-controls {
-            padding: 15px;
-            background: #f8fafc;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .control-group { margin-bottom: 15px; }
-        .control-group label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding: 10px;
-            background: #f1f5f9;
-            border-radius: 8px;
-            font-size: 0.8rem;
-        }
-
-        /* Botones de Navegación */
-        .nav-btns {
-            margin-top: 20px;
-            display: flex;
-            gap: 15px;
-        }
-
-        button {
-            padding: 10px 25px;
-            background: var(--slate-900);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: opacity 0.2s;
-        }
-
-        button:hover { opacity: 0.9; }
-
-        input[type="range"] { width: 100%; appearance: none; height: 4px; background: #cbd5e1; border-radius: 2px; }
-        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 15px; height: 15px; background: var(--blue-600); border-radius: 50%; cursor: pointer; }
+        body { background-color: #f8fafc; color: #334155; }
+        .card { border: none; border-radius: 0.75rem; }
+        .interactive-container { background: white; border: 1px solid #dee2e6; border-radius: 0.5rem; overflow: hidden; }
+        .formula-box { background: #f1f5f9; border-left: 4px solid #0d6efd; padding: 1.25rem; margin: 1.5rem 0; }
+        .edu-badge { font-size: 0.75rem; font-weight: 700; padding: 0.35em 0.65em; border-radius: 50rem; transition: all 0.3s; }
     </style>
 </head>
 <body>
 
-<div class="book">
-    <div class="page" id="p1" style="z-index: 3;">
-        <div class="content">
-            <h2 style="color: var(--slate-900);">Esfuerzos Fluctuantes</h2>
-            <p>Las tensiones variables en maquinaria suelen adoptar formas sinusoidales debido a mecanismos rotatorios.</p>
-            <p>Independientemente de la forma de onda, los factores determinantes para el fallo por fatiga son los <b>valores extremos</b> (\(\sigma_{max}, \sigma_{min}\)).</p>
-            
-            <div style="background: #f0fdf4; border-left: 4px solid #16a34a; padding: 15px; margin: 15px 0; font-size: 0.9rem;">
-                <b>Componentes Clave:</b>
-                <p>\[ \sigma_{m} = \frac{\sigma_{max} + \sigma_{min}}{2} \]</p>
-                <p>\[ \sigma_{a} = \left| \frac{\sigma_{max} - \sigma_{min}}{2} \right| \]</p>
-            </div>
-            <p style="font-size: 0.85rem; color: #64748b;">Pasa a la siguiente página para usar el simulador interactivo.</p>
-        </div>
-    </div>
+<div class="container py-4" id="edu-stress-master">
+    <header class="mb-4">
+        <h1 class="h2 fw-bold text-dark">Tópico 1: Caracterizando Esfuerzos Fluctuantes</h1>
+        <hr class="opacity-10">
+    </header>
 
-    <div class="page" id="p2" style="z-index: 2;">
-        <div class="content">
-            <div class="sim-container">
-                <div class="sim-header">
-                    <span id="status-badge" style="font-size: 0.7rem; background: #3b82f6; padding: 2px 8px; border-radius: 4px;">FLUCTUANTE</span>
+    <section class="mb-5">
+        <p>Las tensiones variables en la maquinaria frecuentemente adoptan una configuración sinusoidal, principalmente a causa de la índole de ciertos mecanismos rotatorios. Sin embargo, también se presentan otras formas de onda, en ocasiones considerablemente irregulares. Los estudios indican que, para los patrones periódicos que manifiestan un <b>único pico máximo y uno mínimo</b> de fuerza, el contorno o la forma específica de la onda carece de relevancia; en su lugar, los factores determinantes son los <b>valores extremos</b> en sí mismos.</p>
+        
+        <div class="formula-box">
+            <p class="mb-2 text-muted small fw-bold text-uppercase">Componentes de Fuerza:</p>
+            \[ F_{m} = \frac{F_{\max} + F_{\min}}{2} \quad ; \quad F_{a} = \left| \frac{F_{\max} - F_{\min}}{2} \right| \]
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="h6 mb-0 fw-bold">LABORATORIO VIRTUAL DE ESFUERZOS</h3>
+                    <span id="edu-status-badge" class="edu-badge">CARGANDO...</span>
                 </div>
-                <div style="padding: 10px;">
-                    <svg id="canvas" viewBox="0 0 500 220" style="width:100%; background: #fff;">
-                        <line x1="40" y1="110" x2="480" y2="110" stroke="#cbd5e1" />
-                        <path id="wave" fill="none" stroke="var(--slate-900)" stroke-width="2.5" />
-                        <line id="l-max" x1="40" x2="480" stroke="var(--red-600)" stroke-dasharray="4" />
-                        <line id="l-min" x1="40" x2="480" stroke="var(--blue-600)" stroke-dasharray="4" />
-                        <line id="l-mid" x1="40" x2="480" stroke="#10b981" stroke-width="1.5" />
+            </div>
+            <div class="card-body">
+                <div class="interactive-container mb-4">
+                    <svg id="edu-canvas" viewBox="0 0 500 250" class="w-100">
+                        <rect width="500" height="250" fill="#ffffff" />
+                        <line x1="50" y1="170" x2="480" y2="170" stroke="#f1f5f9" stroke-width="2" /> <path id="edu-wave-path" fill="none" stroke="#1e293b" stroke-width="3" />
+                        
+                        <line id="edu-line-max" x1="50" x2="480" stroke="#dc3545" stroke-dasharray="4" />
+                        <line id="edu-line-min" x1="50" x2="480" stroke="#0d6efd" stroke-dasharray="4" />
+                        <line id="edu-line-mid" x1="50" x2="480" stroke="#10b981" stroke-width="2" />
+                        
+                        <line id="edu-arrow-sa" x1="460" x2="460" stroke="#10b981" stroke-width="1" marker-end="url(#arrowhead)" />
                     </svg>
-                    
-                    <div class="results-grid">
-                        <div>Media (\(\sigma_m\)): <b id="res-sm">-</b></div>
-                        <div>Amplitud (\(\sigma_a\)): <b id="res-sa">-</b></div>
-                        <div>Relación (\(R\)): <b id="res-r">-</b></div>
-                        <div>Rango (\(\Delta\sigma\)): <b id="res-ds">-</b></div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-danger">Esfuerzo Máximo (\(\sigma_{\max}\))</label>
+                        <input type="range" class="form-range" id="edu-in-max" min="1" max="600" value="300">
+                        <div id="edu-val-max" class="text-center small fw-bold">300 MPa</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-primary">Esfuerzo Mínimo (\(\sigma_{\min}\))</label>
+                        <input type="range" class="form-range" id="edu-in-min" min="-600" max="590" value="100">
+                        <div id="edu-val-min" class="text-center small fw-bold">100 MPa</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Tipo de Ciclo</label>
+                        <select class="form-select form-select-sm" id="edu-in-type">
+                            <option value="sine">Ciclo Sinusoidal</option>
+                            <option value="square">Ciclo Cuadrado</option>
+                        </select>
                     </div>
                 </div>
-                <div class="sim-controls">
-                    <div class="control-group">
-                        <label style="color:var(--red-600)">\(\sigma_{max}\) <span id="v-max">300</span> MPa</label>
-                        <input type="range" id="in-max" min="1" max="600" value="300">
-                    </div>
-                    <div class="control-group">
-                        <label style="color:var(--blue-600)">\(\sigma_{min}\) <span id="v-min">100</span> MPa</label>
-                        <input type="range" id="in-min" min="-600" max="590" value="100">
-                    </div>
-                    <select id="in-type" style="width:100%; padding: 8px; border-radius: 5px;">
-                        <option value="sine">Sinusoidal</option>
-                        <option value="square">Cuadrada</option>
-                    </select>
+
+                <div class="row mt-4 g-2 text-center">
+                    <div class="col-6 col-md-3 small border-end">Media (\(\sigma_m\)): <br><b id="edu-res-sm">-</b></div>
+                    <div class="col-6 col-md-3 small border-end">Amplitud (\(\sigma_a\)): <br><b id="edu-res-sa">-</b></div>
+                    <div class="col-6 col-md-3 small border-end">Relación (R): <br><b id="edu-res-r">-</b></div>
+                    <div class="col-6 col-md-3 small">Rango (\(\Delta\sigma\)): <br><b id="edu-res-ds">-</b></div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<div class="nav-btns">
-    <button onclick="prevPage()">Página Anterior</button>
-    <button onclick="nextPage()">Página Siguiente</button>
+    <section class="row mb-5">
+        <div class="col-12">
+            <h4 class="h5 fw-bold">Relaciones de Esfuerzo</h4>
+            <p>La tensión estática o constante ( \( \sigma_{\text{s}} \) ) difiere de la tensión de rango medio ( \( \sigma_{\text{m}} \) ). La existencia de la tensión constante se debe a una precarga, como en el caso de resortes helicoidales pre-comprimidos.</p>
+            
+            <p>Además, para el análisis de diseño, emplearemos la razón de esfuerzo \(R\) y la razón de amplitud \(A\):</p>
+            <div class="bg-dark text-white p-3 rounded text-center">
+                \[ R = \frac{\sigma_{\min}}{\sigma_{\max}} \quad ; \quad A = \frac{\sigma_{a}}{\sigma_{m}} \]
+            </div>
+            
+            <div class="alert alert-info mt-4 small">
+                <strong>Nota sobre concentradores:</strong> En presencia de una muesca, el factor de concentración de esfuerzo a la fatiga \( K_{f} \) se aplica en ambas componentes (\(\sigma_a\) y \(\sigma_m\)), siempre que no ocurra deformación plástica.
+            </div>
+        </div>
+    </section>
 </div>
 
 <script>
-    // --- LÓGICA DEL FLIPBOOK ---
-    let currentPos = 1;
-    function nextPage() {
-        if (currentPos < 2) {
-            document.getElementById('p' + currentPos).classList.add('flipped');
-            currentPos++;
+const updateEduWave=()=>{
+    const a=document.getElementById('edu-in-max'),
+          b=document.getElementById('edu-in-min'),
+          c=document.getElementById('edu-in-type');
+    
+    let d=parseFloat(a.value),
+        e=parseFloat(b.value);
+    const f=c.value;
+
+    if(e>=d){ e=d-10; b.value=e; }
+
+    const g=(d+e)/2, h=(d-e)/2, i=d-e, j=d!==0?e/d:0;
+
+    document.getElementById('edu-val-max').textContent=d+" MPa";
+    document.getElementById('edu-val-min').textContent=e+" MPa";
+    document.getElementById('edu-res-sm').textContent=g.toFixed(1)+" MPa";
+    document.getElementById('edu-res-sa').textContent=h.toFixed(1)+" MPa";
+    document.getElementById('edu-res-ds').textContent=i.toFixed(1)+" MPa";
+    document.getElementById('edu-res-r').textContent=isFinite(j)?j.toFixed(2):"∞";
+
+    const k=document.getElementById('edu-status-badge');
+    if(Math.abs(g)<0.1){
+        k.textContent="Completamente Invertido"; k.style.background="#0f172a"; k.style.color="#fff";
+    } else if(Math.abs(e)<0.1){
+        k.textContent="Repetido"; k.style.background="#3b82f6"; k.style.color="#fff";
+    } else {
+        k.textContent="Fluctuante"; k.style.background="#e2e8f0"; k.style.color="#475569";
+    }
+
+    const l=140/600, m=(n)=>170-(n*l);
+    
+    document.getElementById('edu-line-max').setAttribute('y1',m(d));
+    document.getElementById('edu-line-max').setAttribute('y2',m(d));
+    document.getElementById('edu-line-min').setAttribute('y1',m(e));
+    document.getElementById('edu-line-min').setAttribute('y2',m(e));
+    document.getElementById('edu-line-mid').setAttribute('y1',m(g));
+    document.getElementById('edu-line-mid').setAttribute('y2',m(g));
+    document.getElementById('edu-arrow-sa').setAttribute('y1',m(g));
+    document.getElementById('edu-arrow-sa').setAttribute('y2',m(d));
+
+    let o="";
+    if(f==='sine'){
+        o="M 50 "+m(g);
+        for(let p=0;p<=430;p+=2){o+=" L "+(50+p)+" "+m(g+h*Math.sin(p*0.06))}
+    } else {
+        o="M 50 "+m(d);
+        for(let p=0;p<400;p+=100){
+            o+=" L "+(50+p+40)+" "+m(d)+" L "+(50+p+40)+" "+m(e)+" L "+(50+p+90)+" "+m(e)+" L "+(50+p+90)+" "+m(d)
         }
     }
-    function prevPage() {
-        if (currentPos > 1) {
-            currentPos--;
-            document.getElementById('p' + currentPos).classList.remove('flipped');
-        }
-    }
+    document.getElementById('edu-wave-path').setAttribute('d',o);
+};
 
-    // --- LÓGICA DEL SIMULADOR (TU CÓDIGO OPTIMIZADO) ---
-    const updateSim = () => {
-        const sMax = parseFloat(document.getElementById('in-max').value);
-        let sMin = parseFloat(document.getElementById('in-min').value);
-        const type = document.getElementById('in-type').value;
-
-        if (sMin >= sMax) { sMin = sMax - 10; document.getElementById('in-min').value = sMin; }
-
-        const sm = (sMax + sMin) / 2;
-        const sa = (sMax - sMin) / 2;
-        const r = sMin / sMax;
-
-        document.getElementById('v-max').innerText = sMax;
-        document.getElementById('v-min').innerText = sMin;
-        document.getElementById('res-sm').innerText = sm.toFixed(1);
-        document.getElementById('res-sa').innerText = sa.toFixed(1);
-        document.getElementById('res-ds').innerText = (sMax - sMin).toFixed(1);
-        document.getElementById('res-r').innerText = isFinite(r) ? r.toFixed(2) : "∞";
-
-        const badge = document.getElementById('status-badge');
-        if (Math.abs(sm) < 1) { badge.innerText = "COMPL. INVERTIDO"; badge.style.background = "#0f172a"; }
-        else if (Math.abs(sMin) < 1) { badge.innerText = "REPETIDO"; badge.style.background = "#2563eb"; }
-        else { badge.innerText = "FLUCTUANTE"; badge.style.background = "#64748b"; }
-
-        const ty = (v) => 110 - (v * (90/600));
-        document.getElementById('l-max').setAttribute('y1', ty(sMax));
-        document.getElementById('l-max').setAttribute('y2', ty(sMax));
-        document.getElementById('l-min').setAttribute('y1', ty(sMin));
-        document.getElementById('l-min').setAttribute('y2', ty(sMin));
-        document.getElementById('l-mid').setAttribute('y1', ty(sm));
-        document.getElementById('l-mid').setAttribute('y2', ty(sm));
-
-        let d = "";
-        if(type === 'sine') {
-            d = `M 40 ${ty(sm)}`;
-            for(let x=0; x<=440; x+=2) d += ` L ${40+x} ${ty(sm + sa * Math.sin(x*0.06))}`;
-        } else {
-            d = `M 40 ${ty(sMax)}`;
-            for(let x=0; x<400; x+=100) d += ` L ${80+x} ${ty(sMax)} L ${80+x} ${ty(sMin)} L ${130+x} ${ty(sMin)} L ${130+x} ${ty(sMax)}`;
-        }
-        document.getElementById('wave').setAttribute('d', d);
-    };
-
-    document.querySelectorAll('input, select').forEach(el => el.oninput = updateSim);
-    updateSim();
+document.querySelectorAll('#edu-stress-master input, #edu-stress-master select').forEach(q=>{
+    q.addEventListener('input',updateEduWave);
+});
+setTimeout(updateEduWave,500);
 </script>
 </body>
 </html>
