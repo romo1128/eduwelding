@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis de Esfuerzos Fluctuantes</title>
-    
+    <title>Flipbook: Análisis de Esfuerzos</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
@@ -14,172 +13,207 @@
             --slate-700: #334155;
             --blue-600: #2563eb;
             --red-600: #dc2626;
-            --bg: #ffffff;
+            --bg: #f1f5f9;
+            --page-bg: #ffffff;
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            line-height: 1.7;
-            color: var(--slate-700);
             background: var(--bg);
-            margin: 0;
-            padding: 0;
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
         }
 
-        .content-wrapper {
-            max-width: 800px;
-            width: 100%;
-            padding: 20px;
+        /* Estructura del Flipbook */
+        .book {
+            position: relative;
+            width: 900px;
+            height: 600px;
+            perspective: 2000px;
+        }
+
+        .page {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            top: 0;
+            right: 0;
+            background: var(--page-bg);
+            transform-origin: left;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+            box-shadow: inset 3px 0 10px rgba(0,0,0,0.05);
+            z-index: 1;
+            padding: 30px;
             box-sizing: border-box;
+            border: 1px solid #e2e8f0;
+            overflow-y: auto;
+            backface-visibility: hidden;
         }
 
-        h1, h2, h3 { color: var(--slate-900); letter-spacing: -0.02em; }
-        
-        /* Contenedor del Simulador - Mobile Ready */
+        .page.flipped {
+            transform: rotateY(-180deg);
+        }
+
+        .content {
+            width: 100%;
+            height: auto;
+            backface-visibility: hidden;
+        }
+
+        .page.flipped .content {
+            transform: rotateY(-180deg);
+        }
+
+        /* Estilos del Simulador (Tu Código Adaptado) */
         .sim-container {
-            margin: 40px 0;
             border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            overflow: hidden;
+            border-radius: 12px;
             background: #fff;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 10px;
         }
 
         .sim-header {
             background: var(--slate-900);
-            padding: 20px;
+            padding: 10px;
             color: white;
             text-align: center;
         }
 
-        .sim-viz { padding: 15px; background: white; }
-        
         .sim-controls {
-            padding: 20px;
+            padding: 15px;
             background: #f8fafc;
             border-top: 1px solid #e2e8f0;
         }
 
-        .control-group { margin-bottom: 20px; }
+        .control-group { margin-bottom: 15px; }
         .control-group label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            background: #cbd5e1;
-            border-radius: 5px;
-            appearance: none;
         }
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        /* Botones de Navegación */
+        .nav-btns {
             margin-top: 20px;
-            padding: 15px;
-            background: #f1f5f9;
-            border-radius: 10px;
-            font-size: 0.85rem;
+            display: flex;
+            gap: 15px;
         }
 
-        .results-grid b { color: var(--slate-900); font-family: monospace; }
-
-        .formula-block {
-            background: #f1f5f9;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 20px 0;
+        button {
+            padding: 10px 25px;
+            background: var(--slate-900);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
         }
 
-        select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
-            font-size: 1rem;
-        }
+        button:hover { opacity: 0.9; }
+
+        input[type="range"] { width: 100%; appearance: none; height: 4px; background: #cbd5e1; border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 15px; height: 15px; background: var(--blue-600); border-radius: 50%; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="content-wrapper">
-    <h1>Dinámica de Esfuerzos Fluctuantes</h1>
-    
-    <p>Las tensiones variables en la maquinaria frecuentemente adoptan una configuración sinusoidal, principalmente a causa de la índole de ciertos mecanismos rotatorios. Sin embargo, también se presentan otras formas de onda, en ocasiones considerablemente irregulares.</p>
-
-    <p>Los estudios indican que, para los patrones periódicos que manifiestan un <b>único pico máximo y uno mínimo de fuerza</b>, la forma específica de la onda carece de relevancia; en su lugar, los factores determinantes son los valores extremos.</p>
-
-    <div class="sim-container">
-        <div class="sim-header">
-            <h3 style="margin:0; color:white; font-size: 1.1rem;">Laboratorio Virtual de Esfuerzos</h3>
-            <div id="status-badge" style="font-size: 0.7rem; font-weight: bold; background: #3b82f6; display: inline-block; padding: 2px 8px; border-radius: 4px; margin-top: 5px;">FLUCTUANTE</div>
-        </div>
-
-        <div class="sim-viz">
-            <svg id="canvas" viewBox="0 0 500 250" style="width:100%; height:auto; overflow:visible;">
-                <rect x="50" y="20" width="430" height="200" fill="#f8fafc" rx="8" />
-                <line x1="50" y1="120" x2="480" y2="120" stroke="#cbd5e1" stroke-width="1" /> 
-                <path id="wave" fill="none" stroke="var(--slate-900)" stroke-width="3" />
-                <line id="l-max" x1="50" x2="480" stroke="var(--red-600)" stroke-width="1.5" stroke-dasharray="4" />
-                <line id="l-min" x1="50" x2="480" stroke="var(--blue-600)" stroke-width="1.5" stroke-dasharray="4" />
-                <line id="l-mid" x1="50" x2="480" stroke="#10b981" stroke-width="2" />
-            </svg>
-
-            <div class="results-grid">
-                <div>Media \((\sigma_m)\): <b id="res-sm">-</b></div>
-                <div>Amplitud \((\sigma_a)\): <b id="res-sa">-</b></div>
-                <div>Relación \((R)\): <b id="res-r">-</b></div>
-                <div>Rango \((\Delta\sigma)\): <b id="res-ds">-</b></div>
+<div class="book">
+    <div class="page" id="p1" style="z-index: 3;">
+        <div class="content">
+            <h2 style="color: var(--slate-900);">Esfuerzos Fluctuantes</h2>
+            <p>Las tensiones variables en maquinaria suelen adoptar formas sinusoidales debido a mecanismos rotatorios.</p>
+            <p>Independientemente de la forma de onda, los factores determinantes para el fallo por fatiga son los <b>valores extremos</b> (\(\sigma_{max}, \sigma_{min}\)).</p>
+            
+            <div style="background: #f0fdf4; border-left: 4px solid #16a34a; padding: 15px; margin: 15px 0; font-size: 0.9rem;">
+                <b>Componentes Clave:</b>
+                <p>\[ \sigma_{m} = \frac{\sigma_{max} + \sigma_{min}}{2} \]</p>
+                <p>\[ \sigma_{a} = \left| \frac{\sigma_{max} - \sigma_{min}}{2} \right| \]</p>
             </div>
-        </div>
-
-        <div class="sim-controls">
-            <div class="control-group">
-                <label style="color:var(--red-600)">Esfuerzo Máximo (\(\sigma_{max}\)) <span id="v-max">300</span> MPa</label>
-                <input type="range" id="in-max" min="1" max="600" value="300">
-            </div>
-            <div class="control-group">
-                <label style="color:var(--blue-600)">Esfuerzo Mínimo (\(\sigma_{min}\)) <span id="v-min">100</span> MPa</label>
-                <input type="range" id="in-min" min="-600" max="590" value="100">
-            </div>
-            <select id="in-type">
-                <option value="sine">Ciclo Sinusoidal</option>
-                <option value="square">Ciclo Cuadrado</option>
-            </select>
+            <p style="font-size: 0.85rem; color: #64748b;">Pasa a la siguiente página para usar el simulador interactivo.</p>
         </div>
     </div>
 
-    <h2>Modelado Matemático</h2>
-    <p>El patrón de fuerza a lo largo de un ciclo se puede describir utilizando la fuerza máxima (\( F_{max} \)) y la fuerza mínima (\( F_{min} \)). Definimos el componente medio y el alternante como:</p>
-
-    <div class="formula-block">
-        \[ F_{m} = \frac{F_{max} + F_{min}}{2} \]
-        \[ F_{a} = \left| \frac{F_{max} - F_{min}}{2} \right| \]
+    <div class="page" id="p2" style="z-index: 2;">
+        <div class="content">
+            <div class="sim-container">
+                <div class="sim-header">
+                    <span id="status-badge" style="font-size: 0.7rem; background: #3b82f6; padding: 2px 8px; border-radius: 4px;">FLUCTUANTE</span>
+                </div>
+                <div style="padding: 10px;">
+                    <svg id="canvas" viewBox="0 0 500 220" style="width:100%; background: #fff;">
+                        <line x1="40" y1="110" x2="480" y2="110" stroke="#cbd5e1" />
+                        <path id="wave" fill="none" stroke="var(--slate-900)" stroke-width="2.5" />
+                        <line id="l-max" x1="40" x2="480" stroke="var(--red-600)" stroke-dasharray="4" />
+                        <line id="l-min" x1="40" x2="480" stroke="var(--blue-600)" stroke-dasharray="4" />
+                        <line id="l-mid" x1="40" x2="480" stroke="#10b981" stroke-width="1.5" />
+                    </svg>
+                    
+                    <div class="results-grid">
+                        <div>Media (\(\sigma_m\)): <b id="res-sm">-</b></div>
+                        <div>Amplitud (\(\sigma_a\)): <b id="res-sa">-</b></div>
+                        <div>Relación (\(R\)): <b id="res-r">-</b></div>
+                        <div>Rango (\(\Delta\sigma\)): <b id="res-ds">-</b></div>
+                    </div>
+                </div>
+                <div class="sim-controls">
+                    <div class="control-group">
+                        <label style="color:var(--red-600)">\(\sigma_{max}\) <span id="v-max">300</span> MPa</label>
+                        <input type="range" id="in-max" min="1" max="600" value="300">
+                    </div>
+                    <div class="control-group">
+                        <label style="color:var(--blue-600)">\(\sigma_{min}\) <span id="v-min">100</span> MPa</label>
+                        <input type="range" id="in-min" min="-600" max="590" value="100">
+                    </div>
+                    <select id="in-type" style="width:100%; padding: 8px; border-radius: 5px;">
+                        <option value="sine">Sinusoidal</option>
+                        <option value="square">Cuadrada</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <p>Donde \( F_m \) representa el componente estacionario de rango medio de la fuerza, y \( F_a \) es la amplitud del componente alternante.</p>
-
-    <h2>Relación de Esfuerzos y Muescas</h2>
-    <p>Para el diseño, empleamos la razón de esfuerzo \(R\) y la razón de amplitud \(A\):</p>
-    
-    <div class="formula-block">
-        \[ R = \frac{\sigma_{min}}{\sigma_{max}} \quad ; \quad A = \frac{\sigma_a}{\sigma_m} \]
-    </div>
-
-    <p>En presencia de una muesca, estos valores se ven afectados por el factor \(K_f\). Si el material no entra en fluencia, el factor de concentración se aplica proporcionalmente a ambas componentes.</p>
+<div class="nav-btns">
+    <button onclick="prevPage()">Página Anterior</button>
+    <button onclick="nextPage()">Página Siguiente</button>
 </div>
 
 <script>
-    const update = () => {
+    // --- LÓGICA DEL FLIPBOOK ---
+    let currentPos = 1;
+    function nextPage() {
+        if (currentPos < 2) {
+            document.getElementById('p' + currentPos).classList.add('flipped');
+            currentPos++;
+        }
+    }
+    function prevPage() {
+        if (currentPos > 1) {
+            currentPos--;
+            document.getElementById('p' + currentPos).classList.remove('flipped');
+        }
+    }
+
+    // --- LÓGICA DEL SIMULADOR (TU CÓDIGO OPTIMIZADO) ---
+    const updateSim = () => {
         const sMax = parseFloat(document.getElementById('in-max').value);
         let sMin = parseFloat(document.getElementById('in-min').value);
         const type = document.getElementById('in-type').value;
@@ -192,19 +226,17 @@
 
         document.getElementById('v-max').innerText = sMax;
         document.getElementById('v-min').innerText = sMin;
-        document.getElementById('res-sm').innerText = sm.toFixed(1) + " MPa";
-        document.getElementById('res-sa').innerText = sa.toFixed(1) + " MPa";
-        document.getElementById('res-ds').innerText = (sMax - sMin).toFixed(1) + " MPa";
+        document.getElementById('res-sm').innerText = sm.toFixed(1);
+        document.getElementById('res-sa').innerText = sa.toFixed(1);
+        document.getElementById('res-ds').innerText = (sMax - sMin).toFixed(1);
         document.getElementById('res-r').innerText = isFinite(r) ? r.toFixed(2) : "∞";
 
-        // Badge
         const badge = document.getElementById('status-badge');
-        if (Math.abs(sm) < 1) { badge.innerText = "COMPLETAMENTE INVERTIDO"; badge.style.background = "#0f172a"; }
+        if (Math.abs(sm) < 1) { badge.innerText = "COMPL. INVERTIDO"; badge.style.background = "#0f172a"; }
         else if (Math.abs(sMin) < 1) { badge.innerText = "REPETIDO"; badge.style.background = "#2563eb"; }
         else { badge.innerText = "FLUCTUANTE"; badge.style.background = "#64748b"; }
 
-        // SVG
-        const ty = (v) => 120 - (v * (100/600));
+        const ty = (v) => 110 - (v * (90/600));
         document.getElementById('l-max').setAttribute('y1', ty(sMax));
         document.getElementById('l-max').setAttribute('y2', ty(sMax));
         document.getElementById('l-min').setAttribute('y1', ty(sMin));
@@ -214,18 +246,17 @@
 
         let d = "";
         if(type === 'sine') {
-            d = `M 50 ${ty(sm)}`;
-            for(let x=0; x<=430; x+=2) d += ` L ${50+x} ${ty(sm + sa * Math.sin(x*0.06))}`;
+            d = `M 40 ${ty(sm)}`;
+            for(let x=0; x<=440; x+=2) d += ` L ${40+x} ${ty(sm + sa * Math.sin(x*0.06))}`;
         } else {
-            d = `M 50 ${ty(sMax)}`;
-            for(let x=0; x<400; x+=100) d += ` L ${90+x} ${ty(sMax)} L ${90+x} ${ty(sMin)} L ${140+x} ${ty(sMin)} L ${140+x} ${ty(sMax)}`;
+            d = `M 40 ${ty(sMax)}`;
+            for(let x=0; x<400; x+=100) d += ` L ${80+x} ${ty(sMax)} L ${80+x} ${ty(sMin)} L ${130+x} ${ty(sMin)} L ${130+x} ${ty(sMax)}`;
         }
         document.getElementById('wave').setAttribute('d', d);
     };
 
-    document.querySelectorAll('input, select').forEach(el => el.oninput = update);
-    setTimeout(update, 500);
+    document.querySelectorAll('input, select').forEach(el => el.oninput = updateSim);
+    updateSim();
 </script>
-
 </body>
 </html>
