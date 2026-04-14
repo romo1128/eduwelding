@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Esfuerzos Fluctuantes</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pyodide@0.25.0/pyodide.js"></script>
+
+    <style>
+        :root { --accent-color: #0d6efd; }
+        body { background-color: #f8f9fa; line-height: 1.7; color: #333; }
+        .main-card { max-width: 900px; margin: 3rem auto; background: white; padding: 3rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        /* Figuras Semánticas Limpias */
+        figure { margin: 2.5rem 0; text-align: center; }
+        figure img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #dee2e6; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        figcaption { margin-top: 0.8rem; font-size: 0.9rem; color: #6c757d; font-style: italic; }
+
+        /* Bloques de Fórmulas */
+        .formula-box { background: #f1f4f9; padding: 1.5rem; border-left: 5px solid var(--accent-color); margin: 2rem 0; border-radius: 0 8px 8px 0; }
+
+        /* Contenedor Interactivo */
+        .lab-container { border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; margin: 2rem 0; }
+        .lab-header { background: #212529; color: white; padding: 1rem; font-weight: bold; display: flex; justify-content: space-between; }
+        .lab-body { padding: 1.5rem; background: white; }
+        
+        svg { background: #fff; border: 1px solid #eee; border-radius: 8px; width: 100%; height: auto; }
+        #edu-wave-path { fill: none; stroke: var(--accent-color); stroke-width: 3; }
+        
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; }
+        label { font-size: 0.75rem; font-weight: bold; text-transform: uppercase; color: #555; }
+        
+        /* Badge de estado Python */
+        #py-status { font-size: 0.7rem; padding: 0.4rem 0.8rem; border-radius: 20px; }
+        .loading { background: #ffc107; color: #000; }
+        .ready { background: #198754; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="main-card">
+    <header class="mb-5">
+        <h1 class="display-6 fw-bold">Caracterizando Esfuerzos Fluctuantes</h1>
+        <p class="text-muted">Análisis de ciclos de carga y fatiga en elementos de máquinas.</p>
+        <hr>
+    </header>
+
+    <section>
+        <p>Las tensiones variables en la maquinaria frecuentemente adoptan una configuración sinusoidal... los factores determinantes son los valores extremos: el máximo y el mínimo.</p>
+        
+        <div class="formula-box text-center">
+            \[ F_{m} = \frac{F_{\max} + F_{\min}}{2} \qquad F_{a} = \left| \frac{F_{\max} - F_{\min}}{2} \right| \]
+        </div>
+
+        <figure>
+            <img src="https://eduwelding.com/draftfile.php/2495/user/draft/771419368/image.png" alt="Patrones de esfuerzo-tiempo">
+            <figcaption>Figura 6.29: Diversos patrones de esfuerzo-tiempo observados en componentes mecánicos.</figcaption>
+        </figure>
+    </section>
+
+    <section>
+        <h2 class="h5 fw-bold text-primary">Visualización de Ciclos Interactiva</h2>
+        <div class="lab-container">
+            <div class="lab-header">
+                <span>SIMULADOR DE FATIGA</span>
+                <span id="py-status" class="loading">Cargando Python...</span>
+            </div>
+            <div class="lab-body">
+                <svg viewBox="0 0 500 200">
+                    <line x1="0" y1="100" x2="500" y2="100" stroke="#eee" stroke-width="2" />
+                    <path id="edu-wave-path" d="" />
+                    <line id="edu-line-mid" x1="0" x2="500" stroke="#198754" stroke-dasharray="4" />
+                </svg>
+
+                <div class="controls">
+                    <div>
+                        <label>Esfuerzo Máximo (\(\sigma_{max}\))</label>
+                        <input type="range" class="form-range" id="in-max" min="1" max="500" value="300">
+                        <div class="text-center small" id="val-max">300 MPa</div>
+                    </div>
+                    <div>
+                        <label>Esfuerzo Mínimo (\(\sigma_{min}\))</label>
+                        <input type="range" class="form-range" id="in-min" min="-500" max="490" value="100">
+                        <div class="text-center small" id="val-min">100 MPa</div>
+                    </div>
+                </div>
+
+                <div class="row mt-4 text-center g-2" id="results">
+                    <div class="col-6 col-md-3">
+                        <div class="border rounded p-2 bg-light">
+                            <small class="d-block text-muted">Media (\(\sigma_m\))</small>
+                            <strong id="res-sm">-</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="border rounded p-2 bg-light">
+                            <small class="d-block text-muted">Amplitud (\(\sigma_a\))</small>
+                            <strong id="res-sa">-</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="border rounded p-2 bg-light">
+                            <small class="d-block text-muted">Relación (R)</small>
+                            <strong id="res-r">-</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="border rounded p-2 bg-light">
+                            <small class="d-block text-muted">Rango (\(\Delta\sigma\))</small>
+                            <strong id="res-ds">-</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="mt-5 pt-4 text-center text-muted border-top small">
+        Análisis de Fatiga: Esfuerzos Fluctuantes | Ingeniería Mecánica 2026
+    </footer>
+</div>
+
+<script>
+    let pyodide;
+
+    // 1. Inicializar Python en el navegador
+    async function initPython() {
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage("numpy");
+        
+        // Definimos la lógica de ingeniería en Python puro
+        pyodide.runPython(`
+import numpy as np
+
+def calcular_fatiga(mx, mn):
+    sm = (mx + mn) / 2
+    sa = (mx - mn) / 2
+    r_ratio = mn / mx if mx != 0 else 0
+    delta_s = mx - mn
+    
+    # Generar puntos de la onda sinusoidal
+    x = np.linspace(0, 10 * np.pi, 200)
+    y = sm + sa * np.sin(x)
+    
+    return {
+        "sm": float(sm),
+        "sa": float(sa),
+        "r": float(r_ratio),
+        "ds": float(delta_s),
+        "wave_y": y.tolist()
+    }
+        `);
+        
+        document.getElementById('py-status').textContent = "Python Ready";
+        document.getElementById('py-status').className = "ready";
+        update();
+    }
+
+    // 2. Lógica de actualización (Puente JS-Python)
+    async function update() {
+        if (!pyodide) return;
+
+        const mx = parseFloat(document.getElementById('in-max').value);
+        let mn = parseFloat(document.getElementById('in-min').value);
+        if (mn >= mx) mn = mx - 10;
+
+        // Llamamos a la función Python
+        const res = pyodide.runPython(`calcular_fatiga(${mx}, ${mn})`).toJs({dict_converter: Object.fromEntries});
+
+        // Actualizar UI
+        document.getElementById('val-max').textContent = mx + " MPa";
+        document.getElementById('val-min').textContent = mn + " MPa";
+        document.getElementById('res-sm').textContent = res.sm.toFixed(1);
+        document.getElementById('res-sa').textContent = res.sa.toFixed(1);
+        document.getElementById('res-r').textContent = res.r.toFixed(2);
+        document.getElementById('res-ds').textContent = res.ds.toFixed(1);
+
+        // Dibujar SVG con los datos de Python
+        const getY = (v) => 100 - (v * 100 / 500);
+        let d = `M 0 ${getY(res.wave_y[0])}`;
+        res.wave_y.forEach((v, i) => {
+            d += ` L ${(i * 500 / 200)} ${getY(v)}`;
+        });
+        
+        document.getElementById('edu-wave-path').setAttribute('d', d);
+        document.getElementById('edu-line-mid').setAttribute('y1', getY(res.sm));
+        document.getElementById('edu-line-mid').setAttribute('y2', getY(res.sm));
+    }
+
+    document.querySelectorAll('input').forEach(i => i.addEventListener('input', update));
+    initPython();
+</script>
+
+</body>
+</html>
