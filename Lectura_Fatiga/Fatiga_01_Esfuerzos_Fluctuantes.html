@@ -1,232 +1,412 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caracterizando Esfuerzos Fluctuantes</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Simulador de Fatiga Avanzado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+    </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        #edu-wave-path { fill: none; stroke-width: 3; stroke: currentColor; }
-        .interactive-container { border: 1px solid var(--bs-border-color); }
-        .svg-dark { color: var(--bs-dark); }
+        :root {
+            --chart-height: 400px;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            padding: 1rem;
+        }
+
+        /* Componente Unificado: Tarjeta principal */
+        .app-card {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: var(--bs-white);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 1rem;
+            box-shadow: var(--bs-box-shadow-lg);
+            padding: 2.5rem;
+        }
+
+        /* Versión para el simulador (sin padding para el header) */
+        .app-card.flush {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .card-inner-padding {
+            padding: 2.5rem;
+        }
+
+        /* Estética de sliders */
+        .form-range::-webkit-slider-thumb {
+            background: var(--bs-primary);
+            border: 2px solid white;
+        }
+
+        .slider-danger::-webkit-slider-thumb {
+            background: var(--bs-danger);
+        }
+
+        #canvas-container {
+            height: var(--chart-height);
+            min-height: 350px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Bloques de fórmulas */
+        .formula-card {
+            background-color: var(--bs-light);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        /* Figuras semánticas */
+        figure {
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: var(--bs-border-radius);
+            box-shadow: var(--bs-box-shadow-sm);
+            text-align: center;
+        }
+
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--bs-border-radius-sm);
+        }
+
+        figcaption {
+            margin-top: 0.75rem;
+            font-size: 0.875em;
+            color: var(--bs-secondary-color);
+            font-style: italic;
+        }
+
+        /* Grid de conceptos */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem 1.5rem;
+            align-items: center;
+            padding: 1.25rem;
+            background: var(--bs-tertiary-bg);
+            border-radius: 0.5rem;
+        }
+
+        .concept-symbol {
+            font-weight: bold;
+            color: var(--bs-primary);
+            min-width: 50px;
+        }
+
+        @media (max-width: 768px) {
+
+            .app-card,
+            .card-inner-padding {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
-<body class="bg-light text-body" style="line-height: 1.6;">
 
-<div class="container py-5" id="edu-stress-master">
-    <header class="mb-5">
-        <h1 class="display-6 fw-bold text-dark">Caracterizando Esfuerzos Fluctuantes</h1>
-        <hr class="my-4 opacity-25">
-    </header>
+<body class="bg-light text-secondary">
 
-    <section class="mb-4">
-        <p>Las tensiones variables en la maquinaria frecuentemente adoptan una configuración sinusoidal, principalmente a causa de la índole de ciertos mecanismos rotatorios. Sin embargo, también se presentan otras formas de onda, en ocasiones considerablemente irregulares. Los estudios indican que, para los patrones periódicos que manifiestan un único pico máximo y uno mínimo de fuerza, el contorno o la forma específica de la onda carece de relevancia; en su lugar, los factores determinantes son los valores extremos en sí mismos, tanto el más alto (el máximo) como el más bajo (el mínimo).</p>
-        
-        <p>Por consiguiente, el patrón de fuerza a lo largo de un ciclo se puede describir de manera adecuada utilizando la fuerza máxima ( \( F_{\max} \) ) y la fuerza mínima ( \( F_{\min} \) ). También es cierto que emplear un rango medido tanto por encima como por debajo de una referencia específica provee un método igualmente apropiado para caracterizar este patrón de fuerza. Si \( F_{\max} \) designa la fuerza más elevada registrada y \( F_{\min} \) la más baja, entonces es posible definir un componente constante (estacionario) y uno fluctuante (alternante) mediante las siguientes relaciones:</p>
+    <section class="app-card">
+        <h1 class="h2 fw-bold mb-4 border-bottom pb-3">Dinámica de Esfuerzos Fluctuantes</h1>
 
-        <div class="alert alert-secondary border-0 border-start border-4 border-primary shadow-sm text-center my-4 py-4">
-            <div class="h5">
-                \[ F_{m} = \frac{F_{\max} + F_{\min}}{2} \qquad F_{a} = \left| \frac{F_{\max} - F_{\min}}{2} \right| \]
-            </div>
+        <p>Las tensiones variables en la maquinaria frecuentemente adoptan una configuración sinusoidal,
+            principalmente a causa de la índole de ciertos mecanismos rotatorios. Sin embargo, también se presentan
+            otras formas de onda, en ocasiones considerablemente irregulares. Los estudios indican que, para los
+            patrones periódicos que manifiestan un único pico máximo y uno mínimo de fuerza, el contorno o la forma
+            específica de la onda carece de relevancia; en su lugar, los factores determinantes son los valores
+            extremos en sí mismos, tanto el más alto (el máximo) como el más bajo (el mínimo).</p>
+
+        <p>Por consiguiente, el patrón de fuerza a lo largo de un ciclo se puede describir de manera adecuada
+            utilizando la fuerza máxima ( \( F_{\max} \) ) y la fuerza mínima ( \( F_{\min} \) ). También es cierto
+            que emplear un rango medido tanto por encima como por debajo de una referencia específica provee un
+            método igualmente apropiado para caracterizar este patrón de fuerza. Si \( F_{\max} \) designa la fuerza
+            más elevada registrada y \( F_{\min} \) la más baja, entonces es posible definir un componente constante
+            (estacionario) y uno fluctuante (alternante) mediante las siguientes relaciones:</p>
+
+        <div class="formula-card border">
+            \[ F_{m} = \frac{F_{\max} + F_{\min}}{2} \]
+            <br>
+            \[ F_{a} = \left| \frac{F_{\max} - F_{\min}}{2} \right| \]
         </div>
 
-        <p>donde \( F_m \) representa el componente estacionario de rango medio de la fuerza, y \( F_a \) es la amplitud del componente alternante de la fuerza.</p>
-        
+        <p>donde \( F_m \) representa el componente estacionario de rango medio de la fuerza, y \( F_a \) es la
+            amplitud del componente alternante de la fuerza.</p>
+
         <p>La figura a continuación exhibe ejemplos de diversos patrones de esfuerzo-tiempo que se manifiestan.</p>
-        
-        <div class="text-center my-4">
-            <img class="img-fluid rounded border shadow-sm" src="https://eduwelding.com/draftfile.php/2495/user/draft/771419368/image.png" alt="Patrones de esfuerzo-tiempo">
+
+        <figure>
+            <img src="https://eduwelding.com/draftfile.php/2495/user/draft/570910748/image.png"
+                alt="Diagrama de patrones de esfuerzo-tiempo">
+            <figcaption>Figura 1: Representación de diversos patrones de esfuerzo-tiempo.</figcaption>
+        </figure>
+
+        <p>Los elementos constitutivos del esfuerzo comprenden:</p>
+
+        <div class="concept-grid border">
+            <div class="concept-symbol">\( \sigma_{\text{s}} \)</div> <span>Tensión estática o constante</span>
+            <div class="concept-symbol">\( \sigma_{\text{min}} \)</div> <span>Esfuerzo mínimo</span>
+            <div class="concept-symbol">\( \sigma_{\text{max}} \)</div> <span>Esfuerzo máximo</span>
+            <div class="concept-symbol">\( \sigma_{\text{a}} \)</div> <span>Esfuerzo alternante (amplitud)</span>
+            <div class="concept-symbol">\( \sigma_{\text{m}} \)</div> <span>Esfuerzo medio (rango medio)</span>
+            <div class="concept-symbol">\( \sigma_{\text{r}} \)</div> <span>Rango de esfuerzo total</span>
         </div>
-    </section>
 
-    <section class="mb-5">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
-                <h2 class="h5 fw-bold mb-3 border-bottom pb-2 text-primary">Elementos constitutivos del esfuerzo</h2>
-                <ul class="list-unstyled mb-0">
-                    <li class="py-1">\( \sigma_{\text{s}} \): Tensión estática o constante.</li>
-                    <li class="py-1">\( \sigma_{\text{min}} \): Esfuerzo mínimo.</li>
-                    <li class="py-1">\( \sigma_{\text{max}} \): Esfuerzo máximo.</li>
-                    <li class="py-1">\( \sigma_{\text{a}} \): Esfuerzo alternante (amplitud de esfuerzo).</li>
-                    <li class="py-1">\( \sigma_{\text{m}} \): Esfuerzo medio (rango medio).</li>
-                    <li class="py-1">\( \sigma_{\text{r}} \): Rango de esfuerzo.</li>
-                </ul>
-            </div>
+        <p class="mt-4">La tensión estática o constante ( \( \sigma_{\text{s}} \) ) difiere de la tensión de rango medio
+            ( \(
+            \sigma_{\text{m}} \) ); de hecho, puede adquirir cualquier valor dentro del intervalo de \(
+            \sigma_{\text{min}} \) y \( \sigma_{\text{max}} \). La existencia de la tensión constante se debe a una
+            precarga o una carga fija aplicada al componente, y usualmente no depende de la porción variable de la
+            carga. Como ejemplo, un resorte helicoidal de compresión siempre se monta en un espacio más reducido que
+            su longitud sin carga. La tensión generada por esta compresión inicial se denomina componente de tensión
+            estática o constante, y no es equivalente a la tensión de rango medio.</p>
+
+        <p>También emplearemos los subíndices que representan estos componentes para las tensiones de corte, además
+            de las tensiones normales. Las siguientes relaciones se deducen de la figura:</p>
+
+        <div class="formula-card border">
+            \[ \sigma_{m} = \frac{\sigma_{max} + \sigma_{min}}{2} \]
+            <br>
+            \[ \sigma_{a} = \left| \frac{\sigma_{max} - \sigma_{min}}{2} \right| \]
         </div>
+
+        <p>Además, la razón de esfuerzo \(R\) y la razon de amplitud \(A\) se definen como:</p>
+
+        <div class="formula-card border">
+            \[ R = \frac{\sigma_{min}}{\sigma_{max}} \]
+            <br>
+            \[ A = \frac{\sigma_{a}}{\sigma_{m}} \]
+        </div>
+
+        <p>En ausencia de una muesca, \( \sigma_{a} \) y \( \sigma_{m} \) son iguales a los esfuerzos nominales \(
+            \sigma_{ao} \) y \( \sigma_{mo} \) inducidos por las cargas \( F_{a} \) y \( F_{m} \); en presencia de
+            una muesca son \( K_{f} \cdot \sigma_{ao} \) y \( K_{f} \cdot \sigma_{mo} \), respectivamente, siempre y
+            cuando el material permanezca sin deformación plástica. En otras palabras, el factor de concentración de
+            esfuerzo a la fatiga \( K_{f} \) se aplica en ambas componentes.</p>
+
+
     </section>
 
-    <section class="mb-5">
-        <p>La tensión estática o constante ( \( \sigma_{\text{s}} \) ) difiere de la tensión de rango medio ( \( \sigma_{\text{m}} \) ); de hecho, puede adquirir cualquier valor dentro del intervalo de \( \sigma_{\text{min}} \) y \( \sigma_{\text{max}} \). La existencia de la tensión constante se debe a una precarga o una carga fija aplicada al componente, y usualmente no depende de la porción variable de la carga.</p>
-        
-        <p>Como ejemplo, un resorte helicoidal de compresión siempre se monta en un espacio más reducido que su longitud sin carga. La tensión generada por esta compresión inicial se denomina componente de tensión estática o constante, y no es equivalente a la tensión de rango medio.</p>
-    </section>
+    <section class="app-card">
+        <div class="bg-dark text-white px-4 py-3 d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold" style="letter-spacing: 2px;">Monitor de Esfuerzos Cíclicos</h6>
+            <select id="pattern-select" class="form-select form-select-sm bg-dark text-white border-secondary w-auto">
+                <option value="sinusoidal">Carga Sinusoidal</option>
+                <option value="irregular">Carga Irregular</option>
+            </select>
+        </div>
 
-    <section class="mb-5">
-        <div class="card shadow-sm border-0 overflow-hidden">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
-                <h3 class="h6 mb-0 fw-bold text-uppercase">Visualización de Ciclos Interactiva</h3>
-                <span id="edu-status-badge" class="badge rounded-pill bg-secondary px-3">Iniciando...</span>
-            </div>
-            <div class="card-body bg-white p-4">
-                <div class="interactive-container rounded mb-4">
-                    <svg id="edu-canvas" viewBox="0 0 500 250" class="w-100 svg-dark">
-                        <line x1="50" y1="170" x2="480" y2="170" stroke="var(--bs-gray-200)" stroke-width="2" />
-                        <path id="edu-wave-path" />
-                        <line id="edu-line-max" x1="50" x2="480" stroke="var(--bs-danger)" stroke-dasharray="4" />
-                        <line id="edu-line-min" x1="50" x2="480" stroke="var(--bs-primary)" stroke-dasharray="4" />
-                        <line id="edu-line-mid" x1="50" x2="480" stroke="var(--bs-success)" stroke-width="2" />
-                        <line id="edu-arrow-sa" x1="465" x2="465" stroke="var(--bs-success)" stroke-width="2" />
-                    </svg>
+        <div class="py-4">
+
+            <p> Este monitor vincula los parámetros de entrada con la respuesta dinámica del material:
+            </p>
+            <ul>
+                <li><strong>Ajuste Dinámico:</strong> Al desplazar los sliders, la línea verde (\( \sigma_m \))
+                    recalcula el
+                    centro de gravedad del ciclo de fatiga.</li>
+                <li><strong>Componente Alternante:</strong> El área sombreada visualiza la amplitud (\( \sigma_a \))
+                    respecto a la media.</li>
+                <li><strong>Modo Irregular:</strong> Observa cómo, a pesar de la complejidad de la onda, el análisis se
+                    rige
+                    por los límites \( \sigma_{max} \) y \( \sigma_{min} \).</li>
+            </ul>
+        </div>
+
+        <div id="canvas-container" class="position-relative bg-white">
+            <canvas id="fatigueCanvas"></canvas>
+        </div>
+
+        <div class="card-inner-padding border-top bg-light">
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="small fw-bold text-primary">Esfuerzo Máximo (\( \sigma_{max} \))</span>
+                        <span class="badge bg-primary px-3 rounded-pill"><span id="v-mx">400</span> MPa</span>
+                    </div>
+                    <input type="range" class="form-range" id="i-mx" min="0" max="600" value="400">
                 </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="small fw-bold text-danger">Esfuerzo Mínimo (\( \sigma_{min} \))</span>
+                        <span class="badge bg-danger px-3 rounded-pill"><span id="v-mn">-100</span> MPa</span>
+                    </div>
+                    <input type="range" class="form-range slider-danger" id="i-mn" min="-600" max="590" value="-100">
+                </div>
+            </div>
 
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-danger">Máximo (\(\sigma_{\max}\))</label>
-                        <input type="range" class="form-range" id="edu-in-max" min="1" max="600" value="300">
-                        <div id="edu-val-max" class="text-center small text-muted">300 MPa</div>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-primary">Mínimo (\(\sigma_{\min}\))</label>
-                        <input type="range" class="form-range" id="edu-in-min" min="-600" max="590" value="100">
-                        <div id="edu-val-min" class="text-center small text-muted">100 MPa</div>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-secondary">Tipo de Onda</label>
-                        <select class="form-select form-select-sm" id="edu-in-type">
-                            <option value="sine">Sinusoidal</option>
-                            <option value="square">Cuadrada</option>
-                        </select>
+            <div class="row g-2">
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <small class="text-muted d-block mb-1 fw-bold" style="font-size: 0.65rem;">Media (\( \sigma_m
+                            \))</small>
+                        <span class="fw-bold h6 mb-0" id="res-mean">--</span>
                     </div>
                 </div>
-
-                <div class="row mt-4 g-2 text-center">
-                    <div class="col-6 col-md-3 p-2">
-                        <div class="bg-light border rounded py-2">
-                            <small class="text-muted d-block">Media (\(\sigma_m\))</small>
-                            <b id="edu-res-sm" class="text-dark">-</b>
-                        </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <small class="text-muted d-block mb-1 fw-bold" style="font-size: 0.65rem;">Amplitud (\( \sigma_a
+                            \))</small>
+                        <span class="fw-bold h6 mb-0" id="res-amp">--</span>
                     </div>
-                    <div class="col-6 col-md-3 p-2">
-                        <div class="bg-light border rounded py-2">
-                            <small class="text-muted d-block">Amplitud (\(\sigma_a\))</small>
-                            <b id="edu-res-sa" class="text-dark">-</b>
-                        </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm text-center p-3 text-primary">
+                        <small class="text-muted d-block mb-1 fw-bold" style="font-size: 0.65rem;">Rango (\(
+                            \Delta\sigma \))</small>
+                        <span class="fw-bold h6 mb-0" id="res-range">--</span>
                     </div>
-                    <div class="col-6 col-md-3 p-2">
-                        <div class="bg-light border rounded py-2">
-                            <small class="text-muted d-block">Relación (R)</small>
-                            <b id="edu-res-r" class="text-dark">-</b>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3 p-2">
-                        <div class="bg-light border rounded py-2">
-                            <small class="text-muted d-block">Rango (\(\Delta\sigma\))</small>
-                            <b id="edu-res-ds" class="text-dark">-</b>
-                        </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm text-center p-3">
+                        <small class="text-muted d-block mb-1 fw-bold" style="font-size: 0.65rem;">Relación (\( R
+                            \))</small>
+                        <span class="fw-bold h6 mb-0" id="res-r">--</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="mb-5">
-        <p>También emplearemos los subíndices que representan estos componentes para las tensiones de corte, además de las tensiones normales. Las siguientes relaciones se deducen del análisis de ciclos fluctuantes:</p>
-        
-        <div class="alert alert-light border shadow-sm text-center py-4 my-4">
-            \[ \sigma_{m} = \frac{\sigma_{\max} + \sigma_{\min}}{2} \qquad \sigma_{a} = \left| \frac{\sigma_{\max} - \sigma_{\min}}{2} \right| \]
-        </div>
+    <script>
+        const getStyle = (prop) => getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
 
-        <p>Además, la razón de esfuerzo \(R\) y la razón de amplitud \(A\) se definen como:</p>
-        
-        <div class="card bg-dark text-white border-0 shadow-sm my-4">
-            <div class="card-body text-center py-4">
-                \[ R = \frac{\sigma_{\min}}{\sigma_{\max}} \qquad A = \frac{\sigma_{a}}{\sigma_{m}} \]
-            </div>
-        </div>
+        const colors = {
+            primary: '#0d6efd',
+            danger: '#dc3545',
+            success: '#198754',
+            secondary: '#6c757d',
+            grid: '#f1f3f5'
+        };
 
-        <p>En ausencia de una muesca, \( \sigma_{a} \) y \( \sigma_{m} \) son iguales a los esfuerzos nominales \( \sigma_{ao} \) y \( \sigma_{mo} \) inducidos por las cargas \( F_{a} \) y \( F_{m} \); en presencia de una muesca son \( K_{f} \cdot \sigma_{ao} \) y \( K_{f} \cdot \sigma_{mo} \), respectivamente, siempre y cuando el material permanezca sin deformación plástica. En otras palabras, el factor de concentración de esfuerzo a la fatiga \( K_{f} \) se aplica en ambas componentes.</p>
-    </section>
+        const canvas = document.getElementById('fatigueCanvas');
+        const ctx = canvas.getContext('2d');
+        const iMax = document.getElementById('i-mx'), iMin = document.getElementById('i-mn');
+        const dMax = document.getElementById('v-mx'), dMin = document.getElementById('v-mn');
+        const patternSelect = document.getElementById('pattern-select');
 
-    <footer class="text-center text-muted small pt-4 border-top">
-        Análisis de Fatiga: Esfuerzos Fluctuantes
-    </footer>
-</div>
+        const resMean = document.getElementById('res-mean'),
+            resAmp = document.getElementById('res-amp'),
+            resRange = document.getElementById('res-range'),
+            resR = document.getElementById('res-r');
 
-<script>
-    // La lógica de cálculo se mantiene intacta para asegurar la funcionalidad técnica solicitada
-    const updateEduWave = () => {
-        const inMax = document.getElementById('edu-in-max');
-        const inMin = document.getElementById('edu-in-min');
-        const inType = document.getElementById('edu-in-type');
-
-        let valMax = parseFloat(inMax.value);
-        let valMin = parseFloat(inMin.value);
-        const type = inType.value;
-
-        if (valMin >= valMax) {
-            valMin = valMax - 10;
-            inMin.value = valMin;
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = canvas.offsetWidth * dpr;
+            canvas.height = canvas.offsetHeight * dpr;
+            ctx.scale(dpr, dpr);
+            draw();
         }
 
-        const sm = (valMax + valMin) / 2;
-        const sa = (valMax - valMin) / 2;
-        const range = valMax - valMin;
-        const rRatio = valMax !== 0 ? valMin / valMax : 0;
+        function draw() {
+            const w = canvas.offsetWidth;
+            const h = canvas.offsetHeight;
+            let mx = parseFloat(iMax.value);
+            let mn = parseFloat(iMin.value);
 
-        document.getElementById('edu-val-max').textContent = valMax + " MPa";
-        document.getElementById('edu-val-min').textContent = valMin + " MPa";
-        document.getElementById('edu-res-sm').textContent = sm.toFixed(1) + " MPa";
-        document.getElementById('edu-res-sa').textContent = sa.toFixed(1) + " MPa";
-        document.getElementById('edu-res-ds').textContent = range.toFixed(1) + " MPa";
-        document.getElementById('edu-res-r').textContent = isFinite(rRatio) ? rRatio.toFixed(2) : "∞";
+            if (mn >= mx) { mn = mx - 5; iMin.value = mn; }
 
-        const badge = document.getElementById('edu-status-badge');
-        if (Math.abs(sm) < 0.1) {
-            badge.textContent = "Totalmente Invertido";
-            badge.className = "badge rounded-pill bg-dark px-3";
-        } else if (Math.abs(valMin) < 0.1) {
-            badge.textContent = "Repetido";
-            badge.className = "badge rounded-pill bg-primary px-3";
-        } else {
-            badge.textContent = "Fluctuante";
-            badge.className = "badge rounded-pill bg-secondary px-3";
-        }
+            dMax.innerText = mx; dMin.innerText = mn;
+            const sm = (mx + mn) / 2;
+            const sa = (mx - mn) / 2;
+            const ds = (mx - mn);
+            const R = (mx !== 0) ? (mn / mx).toFixed(2) : "∞";
 
-        const scale = 140 / 600;
-        const getY = (val) => 170 - (val * scale);
+            resMean.innerText = sm.toFixed(1) + " MPa";
+            resAmp.innerText = sa.toFixed(1) + " MPa";
+            resRange.innerText = ds.toFixed(1) + " MPa";
+            resR.innerText = R;
 
-        document.getElementById('edu-line-max').setAttribute('y1', getY(valMax));
-        document.getElementById('edu-line-max').setAttribute('y2', getY(valMax));
-        document.getElementById('edu-line-min').setAttribute('y1', getY(valMin));
-        document.getElementById('edu-line-min').setAttribute('y2', getY(valMin));
-        document.getElementById('edu-line-mid').setAttribute('y1', getY(sm));
-        document.getElementById('edu-line-mid').setAttribute('y2', getY(sm));
-        document.getElementById('edu-arrow-sa').setAttribute('y1', getY(sm));
-        document.getElementById('edu-arrow-sa').setAttribute('y2', getY(valMax));
+            ctx.clearRect(0, 0, w, h);
 
-        let d = "";
-        if (type === 'sine') {
-            d = `M 50 ${getY(sm)}`;
-            for (let x = 0; x <= 430; x += 2) {
-                d += ` L ${50 + x} ${getY(sm + sa * Math.sin(x * 0.06))}`;
+            const margin = 70;
+            const chartW = w - (margin * 2);
+            const chartH = h - (margin * 2);
+            const limit = 600;
+            const yScale = chartH / (limit * 2);
+            const toY = (val) => (h / 2) - (val * yScale);
+
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 1;
+            ctx.font = '11px sans-serif';
+            ctx.fillStyle = colors.secondary;
+            ctx.textAlign = 'right';
+            for (let i = -600; i <= 600; i += 200) {
+                const yPos = toY(i);
+                ctx.beginPath();
+                ctx.moveTo(margin, yPos); ctx.lineTo(w - margin, yPos);
+                ctx.stroke();
+                ctx.fillText(i, margin - 15, yPos + 4);
             }
-        } else {
-            d = `M 50 ${getY(valMax)}`;
-            for (let x = 0; x < 400; x += 100) {
-                d += ` L ${50 + x + 40} ${getY(valMax)} L ${50 + x + 40} ${getY(valMin)} L ${50 + x + 90} ${getY(valMin)} L ${50 + x + 90} ${getY(valMax)}`;
+
+            const getSignalY = (x) => {
+                const t = (x / chartW) * Math.PI * 4;
+                if (patternSelect.value === 'sinusoidal') {
+                    return sm + sa * Math.cos(t);
+                } else {
+                    let noise = Math.sin(t) * 0.7 + Math.sin(t * 2.5) * 0.2 + Math.sin(t * 5.2) * 0.1;
+                    return sm + sa * noise;
+                }
+            };
+
+            ctx.fillStyle = colors.primary + '12';
+            ctx.beginPath();
+            ctx.moveTo(margin, toY(sm));
+            for (let x = 0; x <= chartW; x++) {
+                ctx.lineTo(margin + x, toY(getSignalY(x)));
             }
+            ctx.lineTo(margin + chartW, toY(sm));
+            ctx.fill();
+
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, toY(0)); ctx.lineTo(w - margin, toY(0));
+            ctx.moveTo(margin, margin); ctx.lineTo(margin, h - margin);
+            ctx.stroke();
+
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = colors.success;
+            ctx.beginPath();
+            ctx.moveTo(margin, toY(sm)); ctx.lineTo(w - margin, toY(sm));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.strokeStyle = colors.primary;
+            ctx.lineWidth = 3.5;
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            for (let x = 0; x <= chartW; x++) {
+                const yPos = toY(getSignalY(x));
+                if (x === 0) ctx.moveTo(margin + x, yPos);
+                else ctx.lineTo(margin + x, yPos);
+            }
+            ctx.stroke();
+
+            ctx.fillStyle = colors.primary;
+            ctx.beginPath(); ctx.arc(margin, toY(getSignalY(0)), 5, 0, Math.PI * 2); ctx.fill();
         }
-        document.getElementById('edu-wave-path').setAttribute('d', d);
-    };
 
-    document.querySelectorAll('#edu-stress-master input, #edu-stress-master select').forEach(control => {
-        control.addEventListener('input', updateEduWave);
-    });
-
-    setTimeout(updateEduWave, 500);
-</script>
+        [iMax, iMin, patternSelect].forEach(el => el.oninput = draw);
+        window.onresize = resize;
+        setTimeout(resize, 50);
+    </script>
 </body>
+
 </html>
