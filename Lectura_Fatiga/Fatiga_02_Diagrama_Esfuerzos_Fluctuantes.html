@@ -242,167 +242,328 @@
 
       <section>
         <div class="container-fluid p-1" id="fatigue-mobile-lab">
-  <header class="bg-primary text-white p-2 rounded-2 mb-1 d-flex justify-content-between align-items-center shadow-sm">
-    <h1 class="h6 mb-0 fw-bold">Lab Fatiga: Goodman / S-N</h1>
-    <div id="m_status" class="px-3 py-1 rounded-pill fw-bold border border-white border-opacity-25" style="background-color: #10b981; font-size: 0.85rem;">
-      Ciclos de vida: <span id="m_v_vida" class="font-monospace">---</span>
-    </div>
-  </header>
+          <header
+            class="bg-primary text-white p-2 rounded-2 mb-1 d-flex justify-content-between align-items-center shadow-sm"
+          >
+            <div class="col-7">
+              <h1 class="h6 mb-0 fw-bold">
+                Laboratorio: Relación diagrama S-N / Linea de Goodman
+              </h1>
+            </div>
+            <div
+              id="m_status"
+              class="col-5 px-3 py-1 fw-bold border border-white border-opacity-25 text-center"              
+            >
+              Ciclos de vida:<br />
+              <span id="m_v_vida" class="font-monospace">---</span>
+            </div>
+          </header>
 
-  <div class="bg-white border rounded-2 p-1">
-    <div class="row g-1">
-      
-      <aside class="col-12 col-lg-5">
-        <div class="row g-1">
-          <div class="col-7">
-            <div class="bg-light p-2 rounded-2 border h-100">
-              <div class="mb-2">
-                <div class="d-flex justify-content-between mb-0" style="font-size: 0.7rem;">
-                  <span class="fw-bold text-primary">\(\sigma_m\)</span>
-                  <span id="m_v_sm" class="font-monospace text-muted">100</span>
+          <div class="bg-white border rounded-2 p-1">
+            <div class="row g-1">
+              <div class="col-12 col-lg-5">
+                <div class="row g-1">
+                  <div class="col-7">
+                    <div class="bg-light p-2 rounded-2 border h-100">
+                      <div class="mb-2">
+                        <div
+                          class="d-flex justify-content-between mb-0"
+                          style="font-size: 0.7rem"
+                        >
+                          <span class="fw-bold text-primary">\(\sigma_m\)</span>
+                          <span id="m_v_sm" class="font-monospace text-muted"
+                            >100</span
+                          >
+                        </div>
+                        <input
+                          type="range"
+                          class="form-range"
+                          id="m_i_sm"
+                          min="0"
+                          max="450"
+                          value="100"
+                          style="height: 1.2rem"
+                        />
+                      </div>
+                      <div class="mb-0">
+                        <div
+                          class="d-flex justify-content-between mb-0"
+                          style="font-size: 0.7rem"
+                        >
+                          <span class="fw-bold text-danger">\(\sigma_a\)</span>
+                          <span id="m_v_sa" class="font-monospace text-muted"
+                            >200</span
+                          >
+                        </div>
+                        <input
+                          type="range"
+                          class="form-range slider-danger"
+                          id="m_i_sa"
+                          min="50"
+                          max="500"
+                          value="200"
+                          style="height: 1.2rem"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-5">
+                    <div
+                      class="border rounded-2 p-1 bg-white h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                    >
+                      <span
+                        class="text-muted fw-bold mb-1"
+                        style="font-size: 0.55rem; letter-spacing: 0.5px"
+                        >Onda de carga</span
+                      >
+                      <svg
+                        viewBox="0 0 100 100"
+                        class="w-100"
+                        preserveAspectRatio="none"
+                        style="height: 100%"
+                      >
+                        <line
+                          x1="0"
+                          y1="50"
+                          x2="100"
+                          y2="50"
+                          stroke="#f1f5f9"
+                          stroke-width="1"
+                        />
+                        <path
+                          id="m_wave"
+                          fill="none"
+                          stroke="#334155"
+                          stroke-width="1"
+                          stroke-linecap="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
-                <input type="range" class="form-range" id="m_i_sm" min="0" max="450" value="100" style="height: 1.2rem;">
               </div>
-              <div class="mb-0">
-                <div class="d-flex justify-content-between mb-0" style="font-size: 0.7rem;">
-                  <span class="fw-bold text-danger">\(\sigma_a\)</span>
-                  <span id="m_v_sa" class="font-monospace text-muted">200</span>
+
+              <div class="col-12 col-lg-7">
+                <div class="row g-1 text-center">
+                  <div class="col-6">
+                    <div class="border rounded-2 p-1 bg-white">
+                      <span
+                        class="d-block fw-bold text-muted"
+                        style="font-size: 0.6rem"
+                        >Diagrama de Wöhler (S-N)</span
+                      >
+                      <svg
+                        viewBox="0 0 400 300"
+                        class="w-100 h-auto overflow-visible"
+                        style="max-height: 160px"
+                      >
+                        <g stroke="#e2e8f0" stroke-width="2">
+                          <line x1="40" y1="260" x2="380" y2="260" />
+                          <line x1="40" y1="20" x2="40" y2="260" />
+                        </g>
+                        <line
+                          x1="320"
+                          y1="20"
+                          x2="320"
+                          y2="260"
+                          stroke="#f1f5f9"
+                          stroke-width="2"
+                          stroke-dasharray="4"
+                        />
+                        <path
+                          id="m_sn_curve"
+                          fill="none"
+                          stroke="var(--bs-primary)"
+                          stroke-width="4"
+                        />
+                        <circle
+                          id="m_sn_pt"
+                          r="9"
+                          fill="var(--bs-danger)"
+                          stroke="white"
+                          stroke-width="2"
+                        />
+                        <text
+                          x="380"
+                          y="290"
+                          font-size="16"
+                          fill="#94a3b8"
+                          text-anchor="end"
+                        >
+                          log(N)
+                        </text>
+                        <text
+                          x="35"
+                          y="30"
+                          font-size="16"
+                          fill="#94a3b8"
+                          text-anchor="end"
+                        >
+                          \(\sigma_a\)
+                        </text>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div class="col-6">
+                    <div class="border rounded-2 p-1 bg-white">
+                      <span
+                        class="d-block fw-bold text-muted"
+                        style="font-size: 0.6rem"
+                        >Línea de Goodman</span
+                      >
+                      <svg
+                        viewBox="0 0 400 300"
+                        class="w-100 h-auto overflow-visible"
+                        style="max-height: 160px"
+                      >
+                        <g stroke="#e2e8f0" stroke-width="2">
+                          <line x1="40" y1="260" x2="380" y2="260" />
+                          <line x1="40" y1="20" x2="40" y2="260" />
+                        </g>
+                        <line
+                          id="m_goodman_line"
+                          x1="40"
+                          y1="100"
+                          x2="340"
+                          y2="260"
+                          stroke="var(--bs-success)"
+                          stroke-width="4"
+                          stroke-dasharray="6"
+                        />
+                        <circle
+                          id="m_gn_pt"
+                          r="9"
+                          fill="var(--bs-danger)"
+                          stroke="white"
+                          stroke-width="2"
+                        />
+                        <text
+                          x="340"
+                          y="290"
+                          font-size="16"
+                          text-anchor="middle"
+                          fill="var(--bs-success)"
+                        >
+                          \(S_{ut}\)
+                        </text>
+                        <text
+                          x="35"
+                          y="105"
+                          font-size="16"
+                          text-anchor="end"
+                          fill="var(--bs-success)"
+                        >
+                          \(S_e\)
+                        </text>
+                        <text
+                          x="380"
+                          y="290"
+                          font-size="16"
+                          fill="#94a3b8"
+                          text-anchor="end"
+                        >
+                          \(\sigma_m\)
+                        </text>
+                      </svg>
+                    </div>
+                  </div>
                 </div>
-                <input type="range" class="form-range slider-danger" id="m_i_sa" min="50" max="500" value="200" style="height: 1.2rem;">
               </div>
             </div>
           </div>
-          <div class="col-5">
-            <div class="border rounded-2 p-1 bg-white h-100 d-flex flex-column align-items-center justify-content-center overflow-hidden">
-              <span class="text-muted fw-bold mb-1" style="font-size: 0.55rem; letter-spacing: 0.5px;">ONDA DE CARGA</span>
-              <svg viewBox="0 0 100 100" class="w-100" preserveAspectRatio="none" style="height: 65px">
-                <line x1="0" y1="50" x2="100" y2="50" stroke="#f1f5f9" stroke-width="1.5" />
-                <path id="m_wave" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round" />
-              </svg>
-            </div>
-          </div>
+
+          <script>
+            (function () {
+              const smInput = document.getElementById("m_i_sm");
+              const saInput = document.getElementById("m_i_sa");
+              const wavePath = document.getElementById("m_wave");
+              const snCurve = document.getElementById("m_sn_curve");
+              const snPt = document.getElementById("m_sn_pt");
+              const gnPt = document.getElementById("m_gn_pt");
+              const vVida = document.getElementById("m_v_vida");
+              const statusBox = document.getElementById("m_status");
+
+              const updateFatigueSim = () => {
+                const sm = parseFloat(smInput.value);
+                const sa = parseFloat(saInput.value);
+
+                document.getElementById("m_v_sm").textContent = sm;
+                document.getElementById("m_v_sa").textContent = sa;
+
+                const sut = 600,
+                  seB = 320;
+                const seE = Math.max(10, seB * (1 - sm / sut));
+                const s1k = 0.9 * sut - sm;
+
+                const gX = (logN) => 40 + ((logN - 3) * 280) / 3.5;
+                const gY = (s) => 260 - (s * 220) / 600;
+
+                let d = `M ${gX(3)} ${gY(s1k)}`;
+                for (let i = 0; i <= 3; i += 0.1) {
+                  let n = 3 + i;
+                  let s = s1k * Math.pow(seE / s1k, i / 3);
+                  d += ` L ${gX(n)} ${gY(s)}`;
+                }
+                d += ` L 380 ${gY(seE)}`;
+                snCurve.setAttribute("d", d);
+
+                let lN = 3 + 3 * (Math.log(sa / s1k) / Math.log(seE / s1k));
+                let pX,
+                  pY,
+                  vT,
+                  isSafe = false;
+
+                if (sm >= sut) {
+                  vT = "FLUENCIA";
+                  pX = 40 + (sm * 300) / 600;
+                  pY = 20;
+                } else if (sa >= s1k) {
+                  pX = gX(3);
+                  pY = gY(sa);
+                  vT = "<10³";
+                } else if (sa <= seE) {
+                  pX = 350;
+                  pY = gY(sa);
+                  vT = "Infinita";
+                  isSafe = true;
+                } else {
+                  pX = gX(lN);
+                  pY = gY(sa);
+                  let nVal = Math.pow(10, lN);
+                  vT =
+                    nVal > 1000000
+                      ? "INFINITA"
+                      : nVal.toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        });
+                  if (nVal > 1000000) isSafe = true;
+                }
+
+                snPt.setAttribute("cx", pX);
+                snPt.setAttribute("cy", pY);
+                gnPt.setAttribute("cx", 40 + (sm * 300) / 600);
+                gnPt.setAttribute("cy", 260 - (sa * 220) / 500);
+
+                vVida.textContent = vT;
+                statusBox.style.backgroundColor = isSafe
+                  ? "#10b981"
+                  : "#ef4444";
+
+                let w = `M 0 ${50 - sm / 20}`;
+                for (let t = 0; t <= 100; t += 1) {
+                  w += ` L ${t} ${50 - (sm + sa * Math.sin(t * 0.25)) / 20}`;
+                }
+                wavePath.setAttribute("d", w);
+              };
+
+              [smInput, saInput].forEach((i) =>
+                i.addEventListener("input", updateFatigueSim),
+              );
+              setTimeout(updateFatigueSim, 50);
+            })();
+          </script>
         </div>
-      </aside>
-
-      <div class="col-12 col-lg-7">
-        <div class="row g-1 text-center">
-          <div class="col-6">
-            <div class="border rounded-2 p-1 bg-white">
-              <span class="d-block fw-bold text-muted" style="font-size: 0.6rem;">Wöhler (S-N)</span>
-              <svg viewBox="0 0 400 300" class="w-100 h-auto overflow-visible" style="max-height: 160px;">
-                <g stroke="#e2e8f0" stroke-width="2">
-                  <line x1="40" y1="260" x2="380" y2="260" />
-                  <line x1="40" y1="20" x2="40" y2="260" />
-                </g>
-                <line x1="320" y1="20" x2="320" y2="260" stroke="#f1f5f9" stroke-width="2" stroke-dasharray="4" />
-                <path id="m_sn_curve" fill="none" stroke="var(--bs-primary)" stroke-width="4" />
-                <circle id="m_sn_pt" r="9" fill="var(--bs-danger)" stroke="white" stroke-width="2" />
-                <text x="380" y="290" font-size="16" fill="#94a3b8" text-anchor="end">log(N)</text>
-                <text x="35" y="30" font-size="16" fill="#94a3b8" text-anchor="end">\(\sigma_a\)</text>
-              </svg>
-            </div>
-          </div>
-
-          <div class="col-6">
-            <div class="border rounded-2 p-1 bg-white">
-              <span class="d-block fw-bold text-muted" style="font-size: 0.6rem;">Goodman</span>
-              <svg viewBox="0 0 400 300" class="w-100 h-auto overflow-visible" style="max-height: 160px;">
-                <g stroke="#e2e8f0" stroke-width="2">
-                  <line x1="40" y1="260" x2="380" y2="260" />
-                  <line x1="40" y1="20" x2="40" y2="260" />
-                </g>
-                <line id="m_goodman_line" x1="40" y1="100" x2="340" y2="260" stroke="var(--bs-success)" stroke-width="4" stroke-dasharray="6" />
-                <circle id="m_gn_pt" r="9" fill="var(--bs-danger)" stroke="white" stroke-width="2" />
-                <text x="340" y="290" font-size="16" text-anchor="middle" fill="var(--bs-success)">\(S_{ut}\)</text>
-                <text x="35" y="105" font-size="16" text-anchor="end" fill="var(--bs-success)">\(S_e\)</text>
-                <text x="380" y="290" font-size="16" fill="#94a3b8" text-anchor="end">\(\sigma_m\)</text>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <script>
-    (function () {
-      const smInput = document.getElementById("m_i_sm");
-      const saInput = document.getElementById("m_i_sa");
-      const wavePath = document.getElementById("m_wave");
-      const snCurve = document.getElementById("m_sn_curve");
-      const snPt = document.getElementById("m_sn_pt");
-      const gnPt = document.getElementById("m_gn_pt");
-      const vVida = document.getElementById("m_v_vida");
-      const statusBox = document.getElementById("m_status");
-
-      const updateFatigueSim = () => {
-        const sm = parseFloat(smInput.value);
-        const sa = parseFloat(saInput.value);
-
-        document.getElementById("m_v_sm").textContent = sm;
-        document.getElementById("m_v_sa").textContent = sa;
-
-        const sut = 600, seB = 320;
-        const seE = Math.max(10, seB * (1 - sm / sut));
-        const s1k = 0.9 * sut - sm;
-
-        const gX = (logN) => 40 + ((logN - 3) * 280) / 3.5;
-        const gY = (s) => 260 - (s * 220) / 600;
-
-        let d = `M ${gX(3)} ${gY(s1k)}`;
-        for (let i = 0; i <= 3; i += 0.1) {
-          let n = 3 + i;
-          let s = s1k * Math.pow(seE / s1k, i / 3);
-          d += ` L ${gX(n)} ${gY(s)}`;
-        }
-        d += ` L 380 ${gY(seE)}`;
-        snCurve.setAttribute("d", d);
-
-        let lN = 3 + 3 * (Math.log(sa / s1k) / Math.log(seE / s1k));
-        let pX, pY, vT, isSafe = false;
-
-        if (sm >= sut) {
-          vT = "FLUENCIA";
-          pX = 40 + (sm * 300) / 600;
-          pY = 20;
-        } else if (sa >= s1k) {
-          pX = gX(3);
-          pY = gY(sa);
-          vT = "<10³";
-        } else if (sa <= seE) {
-          pX = 350;
-          pY = gY(sa);
-          vT = "INFINITA";
-          isSafe = true;
-        } else {
-          pX = gX(lN);
-          pY = gY(sa);
-          let nVal = Math.pow(10, lN);
-          vT = nVal > 1000000 ? "INFINITA" : nVal.toLocaleString(undefined, { maximumFractionDigits: 0 });
-          if(nVal > 1000000) isSafe = true;
-        }
-
-        snPt.setAttribute("cx", pX);
-        snPt.setAttribute("cy", pY);
-        gnPt.setAttribute("cx", 40 + (sm * 300) / 600);
-        gnPt.setAttribute("cy", 260 - (sa * 220) / 500);
-
-        vVida.textContent = vT;
-        statusBox.style.backgroundColor = isSafe ? "#10b981" : "#ef4444";
-
-        let w = `M 0 ${50 - sm / 10}`;
-        for (let t = 0; t <= 100; t += 1) {
-          w += ` L ${t} ${50 - (sm + sa * Math.sin(t * 0.25)) / 10}`;
-        }
-        wavePath.setAttribute("d", w);
-      };
-
-      [smInput, saInput].forEach((i) => i.addEventListener("input", updateFatigueSim));
-      setTimeout(updateFatigueSim, 50);
-    })();
-  </script>
-</div>
       </section>
     </main>
   </body>
