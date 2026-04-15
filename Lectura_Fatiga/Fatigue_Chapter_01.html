@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulador de Fatiga - Goodman y S-N</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="bg-light text-secondary">
+    <main class="container py-4">
+        <!-- Sección que contiene el simulador -->
+        <section id="laboratorio-fatiga">
+            <header class="mb-4">
+                <h2 class="display-5 fw-bold">Laboratorio Virtual: Goodman y S-N</h2>
+                <p class="lead">Análisis interactivo de la vida útil basada en componentes de esfuerzo medio y alternante.</p>
+            </header>
+
+            <!-- Artículo principal del simulador -->
+            <article id="fatigue-simulator" class="bg-white shadow-sm rounded-4 overflow-hidden p-4">
+                <div class="row g-4">
+                    <!-- Columna de Controles (Contenido secundario del artículo) -->
+                    <aside class="col-lg-4 border-end">
+                        <h6 class="fw-bold text-uppercase mb-4 text-dark">Parámetros de Entrada</h6>
+                        
+                        <div class="mb-4">
+                            <label class="form-label d-flex justify-content-between">
+                                <span>Esfuerzo Medio (\(\sigma_m\))</span>
+                                <b id="m_v_sm" class="text-primary">100 MPa</b>
+                            </label>
+                            <input type="range" id="m_i_sm" min="0" max="450" value="100" class="form-range">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label d-flex justify-content-between">
+                                <span>Esfuerzo Alternante (\(\sigma_a\))</span>
+                                <b id="m_v_sa" class="text-danger">200 MPa</b>
+                            </label>
+                            <input type="range" id="m_i_sa" min="50" max="500" value="200" class="form-range">
+                        </div>
+
+                        <hr>
+
+                        <!-- Indicador de estado editorial -->
+                        <div id="m_status_box" class="p-4 rounded-3 text-center text-white bg-success transition-all">
+                            <small class="d-block text-uppercase fw-bold opacity-75 mb-1">Vida Estimada (\(N\))</small>
+                            <span id="m_v_vida" class="display-5 fw-bold">---</span>
+                        </div>
+                    </aside>
+
+                    <!-- Columna de Visualización Editorial -->
+                    <div class="col-lg-8">
+                        <div class="row g-4">
+                            <!-- Visualización de Onda de Carga -->
+                            <div class="col-12">
+                                <figure class="m-0 border rounded-3 p-3 bg-light">
+                                    <figcaption class="mb-3 fw-bold text-dark"><i class="bi bi-graph-up"></i> Esfuerzo en el tiempo \(\sigma(t)\)</figcaption>
+                                    <svg id="svg-onda" viewBox="0 0 400 100" class="w-100" style="height: 120px;">
+                                        <!-- Línea de referencia cero -->
+                                        <line x1="0" y1="50" x2="400" y2="50" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4"/>
+                                        <path id="m_wave" fill="none" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/>
+                                    </svg>
+                                </figure>
+                            </div>
+
+                            <!-- Diagrama S-N -->
+                            <div class="col-md-6">
+                                <figure class="m-0 border rounded-3 p-3 bg-light text-center h-100">
+                                    <figcaption class="mb-2 fw-bold text-dark">Curva de Resistencia S-N</figcaption>
+                                    <svg viewBox="0 0 400 280" class="w-100 h-auto">
+                                        <!-- Ejes -->
+                                        <line x1="50" y1="230" x2="380" y2="230" stroke="#475569" stroke-width="2"/>
+                                        <line x1="50" y1="30" x2="50" y2="230" stroke="#475569" stroke-width="2"/>
+                                        <!-- Curva S-N Dinámica -->
+                                        <path id="m_sn_curve" fill="none" stroke="#2563eb" stroke-width="3"/>
+                                        <!-- Punto de operación S-N -->
+                                        <circle id="m_sn_pt" r="6" fill="#ef4444" stroke="white" stroke-width="2"/>
+                                        <!-- Etiquetas -->
+                                        <text x="380" y="250" font-size="12" text-anchor="end" fill="#64748b">Ciclos log(N)</text>
+                                        <text x="20" y="30" font-size="12" transform="rotate(-90 20,30)" fill="#64748b">Esfuerzo \(\sigma_a\)</text>
+                                    </svg>
+                                </figure>
+                            </div>
+
+                            <!-- Diagrama Goodman -->
+                            <div class="col-md-6">
+                                <figure class="m-0 border rounded-3 p-3 bg-light text-center h-100">
+                                    <figcaption class="mb-2 fw-bold text-dark">Diagrama de Goodman</figcaption>
+                                    <svg viewBox="0 0 400 280" class="w-100 h-auto">
+                                        <!-- Ejes -->
+                                        <line x1="50" y1="230" x2="380" y2="230" stroke="#475569" stroke-width="2"/>
+                                        <line x1="50" y1="30" x2="50" y2="230" stroke="#475569" stroke-width="2"/>
+                                        <!-- Línea de Goodman dinámica -->
+                                        <line id="m_gn_line" x1="50" y1="100" x2="350" y2="230" stroke="#16a34a" stroke-width="3" stroke-dasharray="5"/>
+                                        <!-- Punto de operación Goodman -->
+                                        <circle id="m_gn_pt" r="6" fill="#ef4444" stroke="white" stroke-width="2"/>
+                                        <!-- Etiquetas -->
+                                        <text x="350" y="250" font-size="12" text-anchor="middle" fill="#16a34a">\(S_{ut}\)</text>
+                                        <text x="45" y="105" font-size="12" text-anchor="end" fill="#16a34a">\(S_e\)</text>
+                                    </svg>
+                                </figure>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Datos técnicos complementarios -->
+            <footer class="mt-4 p-4 border rounded-3">
+                <h6 class="fw-bold mb-3">Resultados del Análisis</h6>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-dark">Estado del componente</dt>
+                    <dd class="col-sm-8" id="desc-estado">Calculando...</dd>
+                    
+                    <dt class="col-sm-4 text-dark">Factor de Seguridad (\(n_f\))</dt>
+                    <dd class="col-sm-8 fw-bold" id="val-fs">---</dd>
+
+                    <dt class="col-sm-4 text-dark">Límite de Resistencia (\(S_e\))</dt>
+                    <dd class="col-sm-8" id="val-se">---</dd>
+                </dl>
+            </footer>
+        </section>
+    </main>
+
+    <script>
+        const smInput = document.getElementById('m_i_sm');
+        const saInput = document.getElementById('m_i_sa');
+        const wavePath = document.getElementById('m_wave');
+        const snCurve = document.getElementById('m_sn_curve');
+        const snPt = document.getElementById('m_sn_pt');
+        const gnPt = document.getElementById('m_gn_pt');
+        const gnLine = document.getElementById('m_gn_line');
+        const statusBox = document.getElementById('m_status_box');
+        
+        const updateSim = () => {
+            const sm = parseFloat(smInput.value);
+            const sa = parseFloat(saInput.value);
+            
+            // Actualizar etiquetas
+            document.getElementById('m_v_sm').textContent = sm + ' MPa';
+            document.getElementById('m_v_sa').textContent = sa + ' MPa';
+            
+            // Constantes (Acero Típico)
+            const sut = 600;
+            const se_base = 300; 
+            const se = se_base * (1 - (sm / sut)); 
+            const s1000 = 0.9 * sut - sm;
+
+            // 1. Renderizar ONDA DE CARGA
+            let points = [];
+            for (let x = 0; x <= 400; x += 2) {
+                // Escalamiento visual: 50 es el centro, el esfuerzo se escala /4
+                let y = 50 - (sm + sa * Math.sin(x * 0.1)) / 4;
+                points.push(`${x},${y}`);
+            }
+            wavePath.setAttribute('d', `M ${points.join(' L ')}`);
+
+            // 2. Renderizar DIAGRAMA GOODMAN
+            // Coordenadas: x=50 es 0, x=350 es Sut (600). y=230 es 0, y=30 es 500.
+            const gx = (val) => 50 + (val * 300 / 600);
+            const gy = (val) => 230 - (val * 200 / 500);
+
+            gnLine.setAttribute('x1', gx(0));
+            gnLine.setAttribute('y1', gy(se_base));
+            gnLine.setAttribute('x2', gx(sut));
+            gnLine.setAttribute('y2', gy(0));
+            
+            gnPt.setAttribute('cx', gx(sm));
+            gnPt.setAttribute('cy', gy(sa));
+
+            // 3. Renderizar CURVA S-N
+            const snX = (logN) => 50 + ((logN - 3) * 300 / 3);
+            const snY = (s) => 230 - (s * 200 / 600);
+
+            let snPoints = [];
+            for (let i = 0; i <= 3; i += 0.1) {
+                let logN = 3 + i;
+                let s = s1000 * Math.pow(se / s1000, i / 3);
+                snPoints.push(`${snX(logN)},${snY(s)}`);
+            }
+            snCurve.setAttribute('d', `M ${snPoints.join(' L ')}`);
+
+            // 4. Cálculos de vida y UI
+            let vidaTxt, isSafe = false;
+            let logN = 3 + 3 * (Math.log(sa / s1000) / Math.log(se / s1000));
+
+            if (sm >= sut) {
+                vidaTxt = "FALLA ESTÁTICA";
+                snPt.setAttribute('opacity', 0);
+            } else if (sa <= se) {
+                vidaTxt = "INFINITA";
+                isSafe = true;
+                snPt.setAttribute('opacity', 1);
+                snPt.setAttribute('cx', snX(6.5));
+                snPt.setAttribute('cy', snY(sa));
+            } else if (sa >= s1000) {
+                vidaTxt = "FINITA (<10³)";
+                snPt.setAttribute('opacity', 1);
+                snPt.setAttribute('cx', snX(3));
+                snPt.setAttribute('cy', snY(sa));
+            } else {
+                vidaTxt = Math.pow(10, logN).toLocaleString(undefined, {maximumFractionDigits: 0});
+                snPt.setAttribute('opacity', 1);
+                snPt.setAttribute('cx', snX(logN));
+                snPt.setAttribute('cy', snY(sa));
+            }
+
+            // Actualización de componentes UI
+            document.getElementById('m_v_vida').textContent = vidaTxt;
+            document.getElementById('val-se').textContent = se.toFixed(1) + " MPa";
+            
+            const nf = sa > 0 ? (se / sa).toFixed(2) : "∞";
+            document.getElementById('val-fs').textContent = nf;
+            
+            statusBox.className = `p-4 rounded-3 text-center text-white transition-all ${isSafe ? 'bg-success' : 'bg-danger shadow'}`;
+            document.getElementById('desc-estado').textContent = isSafe ? 
+                "Operación segura dentro del límite de fatiga." : 
+                "Riesgo de falla por fatiga. Vida finita detectada.";
+        };
+
+        [smInput, saInput].forEach(el => el.addEventListener('input', updateSim));
+        updateSim();
+    </script>
+</body>
+</html>
