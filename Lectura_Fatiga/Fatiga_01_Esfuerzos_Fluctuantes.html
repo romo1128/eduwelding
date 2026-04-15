@@ -29,7 +29,7 @@
             border: 1px solid var(--bs-border-color);
             border-radius: 1rem;
             box-shadow: var(--bs-box-shadow-lg);
-            padding: 2.5rem;
+            padding: 0.5rem;
             margin-bottom: 2rem;
             overflow: hidden;
         }
@@ -67,6 +67,30 @@
             background: var(--bs-tertiary-bg);
             border-radius: 0.5rem;
             border: 1px solid var(--bs-border-color);
+        }
+        
+        
+        dl.definiciones {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem 1.5rem;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--bs-tertiary-bg);
+            border-radius: 0.5rem;
+            border: 1px solid var(--bs-border-color);
+            margin: 1.5rem 0;
+        }
+
+        dt {
+            font-weight: bold;
+            color: var(--bs-primary);
+            font-size: 1.1rem;
+        }
+
+        dd {
+            margin: 0;
+            color: var(--bs-secondary-color);
         }
 
         figure {
@@ -111,7 +135,7 @@
             background: var(--bs-danger);
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 98%) {
             section, footer {
                 padding: 1.5rem;
             }
@@ -124,7 +148,7 @@
     <main>
         <section>
             <header>
-                <h1 class="h2 fw-bold mb-4 pb-3">Dinámica de Esfuerzos Fluctuantes</h1>
+                <h1>Dinámica de Esfuerzos Fluctuantes</h1>
             </header>
 
             <p>Las tensiones variables en la maquinaria frecuentemente adoptan una configuración sinusoidal,
@@ -164,16 +188,16 @@
 
             <p>Los elementos constitutivos del esfuerzo comprenden:</p>
 
-            <article>
-                <div class="fw-bold text-primary">\( \sigma_{\text{s}} \)</div> <span>Tensión estática o constante</span>
-                <div class="fw-bold text-primary">\( \sigma_{\text{min}} \)</div> <span>Esfuerzo mínimo</span>
-                <div class="fw-bold text-primary">\( \sigma_{\text{max}} \)</div> <span>Esfuerzo máximo</span>
-                <div class="fw-bold text-primary">\( \sigma_{\text{a}} \)</div> <span>Esfuerzo alternante (amplitud)</span>
-                <div class="fw-bold text-primary">\( \sigma_{\text{m}} \)</div> <span>Esfuerzo medio (rango medio)</span>
-                <div class="fw-bold text-primary">\( \sigma_{\text{r}} \)</div> <span>Rango de esfuerzo total</span>
-            </article>
+            <dl class="definiciones">
+                <dt><dfn>\( \sigma_{\text{s}} \)</dfn></dt> <dd>Tensión estática o constante</dd>
+                <dt><dfn>\( \sigma_{\text{min}} \)</dfn></dt> <dd>Esfuerzo mínimo</dd>
+                <dt><dfn>\( \sigma_{\text{max}} \)</dfn></dt> <dd>Esfuerzo máximo</dd>
+                <dt><dfn>\( \sigma_{\text{a}} \)</dfn></dt> <dd>Esfuerzo alternante (amplitud)</dd>
+                <dt><dfn>\( \sigma_{\text{m}} \)</dfn></dt> <dd>Esfuerzo medio (rango medio)</dd>
+                <dt><dfn>\( \sigma_{\text{r}} \)</dfn></dt> <dd>Rango de esfuerzo total</dd>
+            </dl>
 
-            <p class="mt-4">La tensión estática o constante ( \( \sigma_{\text{s}} \) ) difiere de la tensión de rango medio
+            <p>La tensión estática o constante ( \( \sigma_{\text{s}} \) ) difiere de la tensión de rango medio
                 ( \(
                 \sigma_{\text{m}} \) ); de hecho, puede adquirir cualquier valor dentro del intervalo de \(
                 \sigma_{\text{min}} \) y \( \sigma_{\text{max}} \). La existencia de la tensión constante se debe a una
@@ -214,7 +238,7 @@
                 esfuerzo a la fatiga \( K_{f} \) se aplica en ambas componentes.</p>
         </section>
 
-        <section id="monitor-esfuerzos">
+        <section>
             <div class="bg-dark text-white px-4 py-3 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold" style="letter-spacing: 2px;">Monitor de Esfuerzos Cíclicos</h6>
                 <select id="pattern-select" class="form-select form-select-sm bg-dark text-white border-secondary w-auto">
