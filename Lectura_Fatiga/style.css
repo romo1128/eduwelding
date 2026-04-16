@@ -1,149 +1,180 @@
-<style>
-      :root {
-        --chart-height: 400px;
-      }
+<style> :root {
+  --chart-height: 400px;
+}
 
-      main {
-        max-width: 99%;
-        margin: 0.5rem auto;
-        display: block;
-      }
+main {
+  max-width: 99%;
+  margin: 0.5rem auto;
+  display: block;
+}
 
-      section {
-        background-color: var(--bs-white);
-        border: 1px solid var(--bs-border-color);
-        border-radius: 0.5rem;
-        box-shadow: var(--bs-box-shadow-lg);
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-        overflow: hidden;
-      }
+section {
+  background-color: var(--bs-white);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--bs-box-shadow-lg);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
 
-      section#monitor-esfuerzos {
-        padding: 0;
-      }
+section.interactivo {
+  background-color: var(--bs-gray-500);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--bs-box-shadow-lg);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
 
-      header {
-        border-bottom: 1px solid var(--bs-border-color);
-        margin-bottom: 1.5rem;
-      }
+section#monitor-esfuerzos {
+  padding: 0;
+}
 
-      footer {
-        padding: 2.5rem;
-        background-color: var(--bs-light);
-        border-top: 1px solid var(--bs-border-color);
-      }
+header {
+  margin-bottom: 1.5rem;
+}
 
-      aside {
-        background-color: var(--bs-tertiary-bg);
-        border-left: 12px solid var(--bs-primary);
-        padding: 1.5rem;
-        margin: 1.5rem 0;
-      }
+footer {
+  padding: 2.5rem;
+  background-color: var(--bs-light);
+  border-top: 1px solid var(--bs-border-color);
+}
 
-      article {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 0.5rem 1.5rem;
-        align-items: center;
-        padding: 1.25rem;
-        background: var(--bs-tertiary-bg);
-        border-radius: 0.5rem;
-        border: 1px solid var(--bs-border-color);
-      }
+aside {
+  background: var(--bs-warning-bg-subtle);
+  border-left: 4px solid var(--bs-warning);
+  padding: 15px 20px;
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+}
 
-      dl.definiciones {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 0.5rem 1.5rem;
-        align-items: center;
-        padding: 1.5rem;
-        background: var(--bs-tertiary-bg);
-        border-radius: 0.5rem;
-        border: 1px solid var(--bs-border-color);
-        margin: 1.5rem 0;
-      }
+aside.interactivo {
+  background: var(--bs-tertiary-bg);
+  border-left: 4px solid var(--bs-primary);
+  padding: 15px 20px;
+  margin: 20px 0;
+  border-radius: 0;
+}
 
-      dt {
-        font-weight: bold;
-        color: var(--bs-primary);
-        font-size: 1.1rem;
-      }
+article {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1.5rem;
+  align-items: center;
+  padding: 1.25rem;
+  background: var(--bs-tertiary-bg);
+  border-radius: 0.5rem;
+  border: 1px solid var(--bs-border-color);
+}
 
-      dd {
-        margin: 0;
-        color: var(--bs-secondary-color);
-      }
+dl.definiciones {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1.5rem;
+  align-items: center;
+  padding: 1.5rem;
+  background: var(--bs-tertiary-bg);
+  border-radius: 0.5rem;
+  border: 1px solid var(--bs-border-color);
+  margin: 1.5rem 0;
+}
 
-      figure {
-        margin: 2rem auto;
-        padding: 1.5rem;
-        background-color: var(--bs-body-bg);
-        border: 1px solid var(--bs-border-color);
-        border-radius: var(--bs-border-radius);
-        box-shadow: var(--bs-box-shadow-sm);
-        text-align: center;
-      }
+dt {
+  font-weight: bold;
+  color: var(--bs-primary);
+  font-size: 1.1rem;
+}
 
-      img {
-        max-width: 90%;
-        max-height: 400px;
-        height: auto;
-        width: auto;
-        display: block;
-        margin: 0 auto;
-      }
+dd {
+  margin: 0;
+  color: var(--bs-secondary-color);
+}
 
-      figcaption {
-        margin-top: 0.75rem;
-        font-size: 0.875em;
-        color: var(--bs-secondary-color);
-        font-style: italic;
-      }
+figure {
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  box-shadow: var(--bs-box-shadow-sm);
+  text-align: center;
+}
 
-      cite {
-        font-style: italic;
-        color: var(--bs-primary);
-      }
-      mark {
-        background-color: var(--bs-warning-bg-subtle);
-        padding: 0.2em;
-      }
-      abbr {
-        text-decoration: underline dotted;
-        cursor: help;
-      }
-      code {
-        color: var(--bs-danger);
-        background-color: var(--bs-light);
-        padding: 0.2rem 0.4rem;
-        border-radius: 0.25rem;
-      }
-      dfn {
-        font-weight: bold;
-        font-style: italic;
-      }
+figure.equation {
+  background: var(--bs-tertiary-bg);
+  border-left: 4px solid var(--bs-primary);
+  padding: 15px 20px;
+  margin: 20px 0;
+  border-radius: 0 8px 8px 0;
+}
 
-      canvas {
-        width: 100%;
-        height: var(--chart-height);
-        min-height: 350px;
-        display: block;
-      }
+img {
+  max-width: 90%;
+  max-height: 400px;
+  height: auto;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
 
-      .form-range::-webkit-slider-thumb {
-        background: var(--bs-primary);
-        border: 2px solid white;
-      }
+figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.875em;
+  color: var(--bs-secondary-color);
+  font-style: italic;
+}
 
-      .slider-danger::-webkit-slider-thumb {
-        background: var(--bs-danger);
-      }
+cite {
+  font-style: italic;
+  color: var(--bs-primary);
+}
 
-      @media (max-width: 98%) {
-        section,
-        footer {
-          padding: 1.5rem;
-        }
-      }
-    </style>
+mark {
+  background-color: var(--bs-warning-bg-subtle);
+  padding: 0.2em;
+}
+
+abbr {
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
+code {
+  color: var(--bs-danger);
+  background-color: var(--bs-light);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+dfn {
+  font-weight: bold;
+  font-style: italic;
+}
+
+canvas {
+  width: 100%;
+  height: var(--chart-height);
+  min-height: 350px;
+  display: block;
+}
+
+.form-range::-webkit-slider-thumb {
+  background: var(--bs-primary);
+  border: 2px solid white;
+}
+
+.slider-danger::-webkit-slider-thumb {
+  background: var(--bs-danger);
+}
+
+@media (max-width: 98%) {
+
+  section,
+  footer {
+    padding: 1.5rem;
+  }
+}
+
+</style>
