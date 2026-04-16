@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Curvas de vida constante</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+      };
+    </script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Curvas de vida constante</h1>
+    </header>
+
+    <main>
+      <section>
+        <p>
+          Cuando un esfuerzo fluctuante excede un criterio de falla por fatiga,
+          se predice que tendrá una vida finita, pero el diagrama de esfuerzo
+          fluctuante no indica el número de ciclos predichos. Para estimar el
+          número de ciclos, se utiliza el concepto de curvas de vida constante,
+          como lo muestra la siguiente figura (previamente discutida en la
+          sección "Diagrama de esfuerzos fluctuantes").
+        </p>
+
+        <figure>
+          <img
+            class="img-fluid"
+            src="https://eduwelding.com/draftfile.php/2495/user/draft/949823461/image%20%285%29.png"
+            alt="Curvas de vida constante"
+          />
+          <figcaption>
+            Curvas de vida constante en el diagrama de esfuerzo fluctuante.
+          </figcaption>
+        </figure>
+
+        <p>
+          Si se conoce la naturaleza de estas curvas, se puede trazar una que
+          pase por el punto de vida finita de interés, y su intercepto en la
+          ordenada se interpreta como un esfuerzo completamente invertido con
+          una vida equivalente. Este esfuerzo equivalente completamente
+          invertido puede evaluarse en un diagrama S-N para estimar la vida.
+        </p>
+
+        <p>
+          Un criterio de falla por fatiga puede adaptarse para modelar curvas de
+          vida constante. Básicamente, los criterios se definieron para
+          representar una curva de vida constante de \( 10^6 \) ciclos que pasa
+          por el límite de resistencia. Ahora, simplemente adaptaremos la
+          ecuación para representar una vida diferente, la asociada al punto de
+          vida finita (\( \sigma_m, \sigma_a \)), y tomaremos el intercepto de
+          la ordenada como el esfuerzo completamente invertido equivalente \(
+          \sigma_{ar} \).
+        </p>
+
+        <p>
+          Algunos criterios de falla son mejores predictores que otros para este
+          propósito. En particular, un criterio representativo de los datos
+          experimentales es mejor que uno conservador o uno que también
+          incorpore la verificación de fluencia. Dowling comparó varios
+          criterios, incluidos Goodman, Morrow, SWT y Walker, en estudios con
+          aceros, aleaciones de aluminio y una aleación de titanio. Los demás
+          criterios no se recomiendan para este fin.
+        </p>
+      </section>
+
+      <section>
+        <header>
+          <h2>Goodman</h2>
+        </header>
+        <p>
+          El criterio de Goodman es muy impreciso para estimar un esfuerzo
+          completamente invertido equivalente. Su imprecisión es casi siempre en
+          el sentido muy conservador, ya que predice un esfuerzo completamente
+          invertido equivalente más alto de lo validado por el experimento. El
+          criterio se ha utilizado comúnmente y probablemente seguirá
+          utilizándose en casos donde el conservadurismo excesivo en el diseño
+          es aceptable. En la ecuación para la línea de Goodman se sustituye el
+          esfuerzo completamente invertido equivalente por el límite de
+          resistencia.
+        </p>
+
+        <figure class="equation">
+          \[ \sigma_{ar} = \frac{\sigma_{a}}{1-\sigma_{m}/S_{ut}} \]
+          <figcaption>
+            Esfuerzo equivalente completamente invertido - Goodman
+          </figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <header>
+          <h2>Morrow</h2>
+        </header>
+        <p>
+          El criterio de Morrow es razonablemente preciso para aceros usando la
+          resistencia a la fractura real \( \tilde{\sigma}_{f} \) o el
+          coeficiente de resistencia a la fatiga \( \sigma'_f \). Para el
+          aluminio, solo la resistencia a la fractura real da buenos resultados.
+          Desafortunadamente, estas propiedades del material no siempre están
+          disponibles. La estimación SAE para el coeficiente de resistencia a la
+          fatiga en aceros (\(HB \leq 500\)) se repite aquí por conveniencia.
+        </p>
+
+        <figure class="equation">
+          \[ \sigma'_{f}=S_{ut} + 50 \text{ kpsi} \; \; \text{o} \; \;
+          \sigma'_{f} = S_{ut} + 345 \text{ MPa} \]
+          <figcaption>
+            Estimación de la resistencia a la fractura (SAE)
+          </figcaption>
+        </figure>
+
+        <p>
+          Incluso con dicha estimación, el criterio de Morrow es probablemente
+          tan bueno o mejor que el criterio de Goodman para estimar un esfuerzo
+          completamente invertido equivalente. A partir de la ecuación del
+          criterio de falla de Morrow, el esfuerzo completamente invertido
+          equivalente es:
+        </p>
+
+        <figure class="equation">
+          \[ \sigma_{ar} = \frac{\sigma_{a}}{1 - \sigma_{m} / \tilde{\sigma}_{f}
+          } \; \; \; \; \text{o} \; \; \; \; \sigma_{ar} = \frac{\sigma_{a}}{1 -
+          \sigma_{m} / \sigma'_{f} } \]
+          <figcaption>
+            Esfuerzo equivalente completamente invertido - Morrow
+          </figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <header>
+          <h2>Smith-Watson-Topper</h2>
+        </header>
+        <p>
+          El criterio de Smith-Watson-Topper (SWT) es muy bueno para aluminio y
+          generalmente razonable para aceros. Al obtener el esfuerzo
+          completamente invertido equivalente del criterio de falla, el método
+          SWT tiene la ventaja de su simplicidad, ya que solo necesita los dos
+          componentes de esfuerzo.
+        </p>
+
+        <figure class="equation">
+          \[ \sigma_{ar} = \sqrt{ \sigma_{max} \sigma_{a} } = \sqrt{ \left(
+          \sigma_{m} + \sigma_{a} \right) \sigma_{a} } \]
+          <figcaption>
+            Esfuerzo equivalente completamente invertido - SWT
+          </figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <header>
+          <h2>Walker</h2>
+        </header>
+        <p>
+          El criterio de Walker se considera el mejor ajuste a las predicciones
+          experimentales para el esfuerzo completamente invertido equivalente
+          cuando se conoce el parámetro de ajuste del material \(\gamma\).
+        </p>
+
+        <figure class="equation">
+          \[ \sigma_{ar} = \sigma_{max}^{1 - \gamma} \sigma_{a}^{\gamma} =
+          \left( \sigma_{m} + \sigma_{a} \right)^{ 1 - \gamma} \sigma_{a}^{
+          \gamma } \]
+          <figcaption>
+            Esfuerzo equivalente completamente invertido - Walker
+          </figcaption>
+        </figure>
+
+        <p>
+          Para el aluminio, \(\gamma\) está cerca de 0.5, lo que lo hace
+          equivalente al criterio SWT. La estimación de \(\gamma\) para aceros
+          se repite a continuación:
+        </p>
+
+        <figure class="equation">
+          \[ \gamma = -0.0002 S_{ut} + 0.8818 \; \; \; \left( S_{ut} \text{ en
+          MPa} \right) \] \[ \gamma = -0.0014 S_{ut} + 0.8818 \; \; \; \left(
+          S_{ut} \text{ en kpsi} \right) \]
+          <figcaption>
+            Estimación empírica del parámetro γ para aceros
+          </figcaption>
+        </figure>
+
+        <p>
+          El método Walker es muy útil para aceros y, en la mayoría de los
+          casos, tan bueno o mejor que cualquiera de los otros métodos.
+        </p>
+      </section>
+
+      <section class="interactivo">
+        <header>
+          <h2>🧪 Lab virtual: Estimación de Vida Equivalente</h2>
+        </header>
+
+        <aside class="interactivo">
+          <p>
+            Este simulador estima el<b>
+              esfuerzo completamente invertido equivalente (\(\sigma_{ar}\))</b
+            >
+            y la vida útil predicha (\(N\)) mediante diferentes teorías.
+            Seleccione un material, ajuste los esfuerzos y compare cómo cada
+            criterio interpreta la severidad del ciclo fluctuante en comparación
+            con un ensayo S-N estándar.
+          </p>
+          <p>
+            <b>¿Por qué \( \sigma_ar \) es mayor que \( \sigma_a \)?</b> Si solo usaras
+            \( \sigma_a \) para calcular la vida, estarías ignorando que el
+            esfuerzo medio (\( \sigma_m \)) actúa como un "multiplicador de
+            daño". Las teorías calculan un Esfuerzo Equivalente
+            (\(\sigma_{ar}\)): un valor hipotético más alto que, en un ensayo
+            estandar (sin esfuerzo medio), produciría el mismo daño que tu ciclo
+            actual.
+          </p>
+        </aside>
+
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="card border-0 bg-light shadow-sm">
+              <div class="card-body">
+                <h6 class="fw-bold mb-3 border-bottom pb-2">
+                  Configuración de Parámetros
+                </h6>
+                <div class="row g-3 align-items-end">
+                  <div class="col-sm-4">
+                    <label>Material de Ingeniería</label>
+                    <select
+                      id="mat_selector"
+                      class="form-select form-select-sm mb-3"
+                    >
+                      <option
+                        value="4140"
+                        data-sut="1000"
+                        data-se="500"
+                        data-sf="1500"
+                        data-gamma="0.68"
+                      >
+                        Acero AISI 4140 Q&T
+                      </option>
+                      <option
+                        value="1045"
+                        data-sut="600"
+                        data-se="300"
+                        data-sf="950"
+                        data-gamma="0.76"
+                      >
+                        Acero AISI 1045 CD
+                      </option>
+                      <option
+                        value="8620"
+                        data-sut="700"
+                        data-se="350"
+                        data-sf="1100"
+                        data-gamma="0.74"
+                      >
+                        Acero AISI 8620 N&T
+                      </option>
+                      <option
+                        value="304"
+                        data-sut="515"
+                        data-se="175"
+                        data-sf="1200"
+                        data-gamma="0.78"
+                      >
+                        Acero Inoxidable 304
+                      </option>
+                      <option
+                        value="316"
+                        data-sut="580"
+                        data-se="240"
+                        data-sf="1300"
+                        data-gamma="0.77"
+                      >
+                        Acero Inoxidable 316
+                      </option>
+                      <option
+                        value="410"
+                        data-sut="1100"
+                        data-se="450"
+                        data-sf="1600"
+                        data-gamma="0.66"
+                      >
+                        Acero Inoxidable 410
+                      </option>
+                      <option
+                        value="7075"
+                        data-sut="570"
+                        data-se="160"
+                        data-sf="900"
+                        data-gamma="0.5"
+                      >
+                        Aluminio 7075-T6
+                      </option>
+                      <option
+                        value="6061"
+                        data-sut="310"
+                        data-se="95"
+                        data-sf="600"
+                        data-gamma="0.5"
+                      >
+                        Aluminio 6061-T6
+                      </option>
+                      <option
+                        value="625"
+                        data-sut="930"
+                        data-se="450"
+                        data-sf="1500"
+                        data-gamma="0.70"
+                      >
+                        Aleación Níquel 625
+                      </option>
+                      <option
+                        value="718"
+                        data-sut="1240"
+                        data-se="600"
+                        data-sf="1800"
+                        data-gamma="0.63"
+                      >
+                        Aleación Níquel 718
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="col-sm-4">
+                    <label>
+                      \(\sigma_m\)
+                      <span
+                        id="v_sm"
+                        class="badge"
+                        style="background-color: var(--bs-blue)"
+                        >200 MPa</span
+                      >
+                    </label>
+                    <input
+                      type="range"
+                      id="in_sm"
+                      class="form-range mb-3"
+                      min="0"
+                      max="800"
+                      value="200"
+                    />
+                  </div>
+
+                  <div class="col-sm-4">
+                    <label>
+                      \(\sigma_a\)
+                      <span
+                        id="v_sa"
+                        class="badge"
+                        style="background-color: var(--bs-red)"
+                        >150 MPa</span
+                      >
+                    </label>
+                    <input
+                      type="range"
+                      id="in_sa"
+                      class="form-range mb-3"
+                      min="10"
+                      max="600"
+                      value="150"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card h-100 border-0 bg-light shadow-sm">
+              <div class="card-body">
+                <table class="table table-sm small align-middle">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Teoría</th>
+                      <th>\(\sigma_{ar}\) [MPa]</th>
+                      <th>Vida \(N\)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="color: var(--bs-red)">Goodman</td>
+                      <td style="color: var(--bs-red)" id="r_g_s"></td>
+                      <td style="color: var(--bs-red)" id="r_g_n"></td>
+                    </tr>
+                    <tr>
+                      <td style="color: var(--bs-blue)">Morrow</td>
+                      <td style="color: var(--bs-blue)" id="r_m_s"></td>
+                      <td style="color: var(--bs-blue)" id="r_m_n"></td>
+                    </tr>
+                    <tr>
+                      <td style="color: var(--bs-green)">SWT</td>
+                      <td style="color: var(--bs-green)" id="r_swt_s"></td>
+                      <td style="color: var(--bs-green)" id="r_swt_n"></td>
+                    </tr>
+                    <tr>
+                      <td style="color: var(--bs-purple)">Walker</td>
+                      <td style="color: var(--bs-purple)" id="r_w_s"></td>
+                      <td style="color: var(--bs-purple)" id="r_w_n"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div
+              class="canvas-wrapper bg-white border rounded shadow-sm overflow-hidden"
+              style="min-height: 350px"
+            >
+              <div id="plot-sn" style="width: 100%; height: 500px"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <header>
+        <h2>Recomendaciones Finales</h2>
+      </header>
+      <p>
+        El mejor criterio a usar depende de la situación. Para el aluminio, el
+        método SWT es simple y se ajusta bien, sin requerir propiedades del
+        material. Para otros materiales, si se desea el mejor ajuste empírico,
+        el orden de preferencia es probablemente Walker &gt; Morrow &gt; SWT
+        &gt; Goodman. Si las propiedades del material para Walker y Morrow no
+        están disponibles, para aceros se pueden usar las estimaciones y el
+        orden de preferencia sigue siendo el mismo. Para otros materiales, si
+        las propiedades no están disponibles, el orden de preferencia es SWT y
+        luego Goodman. La razón principal para usar Goodman, para cualquier
+        material, es cuando el objetivo no es el mejor ajuste, sino que se
+        prefiere un enfoque simple y conservador.
+      </p>
+    </footer>
+
+    <script>
+      const plotSN = document.getElementById("plot-sn");
+
+      function updateLab() {
+        const selector = document.getElementById("mat_selector");
+        const selectedOpt = selector.options[selector.selectedIndex];
+
+        const sut = parseFloat(selectedOpt.dataset.sut);
+        const se = parseFloat(selectedOpt.dataset.se);
+        const sf = parseFloat(selectedOpt.dataset.sf);
+        const gamma = parseFloat(selectedOpt.dataset.gamma);
+
+        const sm = parseFloat(document.getElementById("in_sm").value);
+        const sa = parseFloat(document.getElementById("in_sa").value);
+        const smax = sm + sa;
+
+        document.getElementById("v_sm").innerText = `${sm} MPa`;
+        document.getElementById("v_sa").innerText = `${sa} MPa`;
+
+        // Cálculos de sigma_ar
+        const sarG = sa / (1 - sm / sut);
+        const sarM = sa / (1 - sm / sf);
+        const sarSWT = Math.sqrt(smax * sa);
+        const sarW = Math.pow(smax, 1 - gamma) * Math.pow(sa, gamma);
+
+        // Cálculos de Vida (Basquin: sar = a * N^b)
+        // Asumimos N=10^3 para f*Sut (f=0.9) y N=10^6 para Se
+        const f = 0.9;
+        const b = -Math.log10((f * sut) / se) / 3;
+        const a = (f * sut) / Math.pow(1000, b);
+
+        const calcN = (sar) => {
+          if (sar <= se) return "∞";
+          if (sar >= sut) return "< 10³";
+          let N = Math.pow(sar / a, 1 / b);
+          return Math.round(N).toLocaleString();
+        };
+
+        // UI Update
+        document.getElementById("r_g_s").innerText = sarG.toFixed(1);
+        document.getElementById("r_m_s").innerText = sarM.toFixed(1);
+        document.getElementById("r_swt_s").innerText = sarSWT.toFixed(1);
+        document.getElementById("r_w_s").innerText = sarW.toFixed(1);
+
+        document.getElementById("r_g_n").innerText = calcN(sarG);
+        document.getElementById("r_m_n").innerText = calcN(sarM);
+        document.getElementById("r_swt_n").innerText = calcN(sarSWT);
+        document.getElementById("r_w_n").innerText = calcN(sarW);
+
+        // Gráfico S-N
+        const n_vals = [1e3, 1e4, 1e5, 1e6, 1e7];
+        const s_vals = n_vals.map((n) => a * Math.pow(n, b));
+
+        const traces = [
+          {
+            x: n_vals,
+            y: s_vals,
+            name: "S-N Material",
+            line: { color: "#333", width: 3 },
+          },
+          {
+            x: [1e5],
+            y: [sa],
+            name: "σ<sub>a</sub> (Sin corregir)",
+            mode: "markers",
+            marker: { size: 10, color: "red", symbol: "diamond" },
+          },
+          {
+            x: [1e3, 1e7],
+            y: [sarG, sarG],
+            name: "σ<sub>ar</sub> Goodman",
+            line: { color: "red", dash: "dash" },
+          },
+          {
+            x: [1e3, 1e7],
+            y: [sarM, sarM],
+            name: "σ<sub>ar</sub> Morrow",
+            line: { color: "blue", dash: "dash" },
+          },
+          {
+            x: [1e3, 1e7],
+            y: [sarSWT, sarSWT],
+            name: "σ<sub>ar</sub> SWT",
+            line: { color: "green", dash: "dash" },
+          },
+          {
+            x: [1e3, 1e7],
+            y: [sarW, sarW],
+            name: "σ<sub>ar</sub> Walker",
+            line: { color: "purple", dash: "dash" },
+          },
+        ];
+
+        const layout = {
+          title: `S-N vs σ<sub>ar</sub><br>${selectedOpt.text}`,
+          xaxis: { title: "Ciclos a la Falla (N)", type: "log" },
+          yaxis: {
+            title: "Esfuerzo [MPa]",
+            range: [0, Math.max(sut, sarG) * 1.1],
+          },
+          margin: { t: 50, b: 50, l: 60, r: 20 },
+          legend: { orientation: "h", y: -0.2 },
+        };
+
+        Plotly.react(plotSN, traces, layout, {
+          responsive: true,
+          displayModeBar: false,
+        });
+      }
+
+      // Listeners
+      document
+        .getElementById("mat_selector")
+        .addEventListener("change", updateLab);
+      document.getElementById("in_sm").addEventListener("input", updateLab);
+      document.getElementById("in_sa").addEventListener("input", updateLab);
+
+      window.addEventListener("load", updateLab);
+    </script>
+  </body>
+</html>

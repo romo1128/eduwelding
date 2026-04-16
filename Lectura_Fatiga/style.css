@@ -1,5 +1,84 @@
-<style> :root {
-  --chart-height: 400px;
+:root {
+  /* Colores de Tema */
+  --bs-primary: #0d6efd;
+  --bs-secondary: #6c757d;
+  --bs-success: #198754;
+  --bs-info: #0dcaf0;
+  --bs-warning: #ffc107;
+  --bs-danger: #dc3545;
+  --bs-light: #f8f9fa;
+  --bs-dark: #212529;
+
+  /* Básicos y Grises */
+  --bs-white: #fff;
+  --bs-black: #000;
+  --bs-gray-100: #f8f9fa;
+  --bs-gray-200: #e9ecef;
+  --bs-gray-300: #dee2e6;
+  --bs-gray-400: #ced4da;
+  --bs-gray-500: #adb5bd;
+  --bs-gray-600: #6c757d;
+  --bs-gray-700: #495057;
+  --bs-gray-800: #343a40;
+  --bs-gray-900: #212529;
+
+  /* Paleta Base */
+  --bs-blue: #0d6efd;
+  --bs-indigo: #6610f2;
+  --bs-purple: #6f42c1;
+  --bs-pink: #d63384;
+  --bs-red: #dc3545;
+  --bs-orange: #fd7e14;
+  --bs-yellow: #ffc107;
+  --bs-green: #198754;
+  --bs-teal: #20c997;
+  --bs-cyan: #0dcaf0;
+
+  /* Escalas (Ejemplos Blue y Red) */
+  --bs-blue-100: #cfe2ff;
+  --bs-blue-200: #9ec5fe;
+  --bs-blue-300: #6ea8fe;
+  --bs-blue-400: #3d8bfd;
+  --bs-blue-500: #0d6efd;
+  --bs-blue-600: #0a58ca;
+  --bs-blue-700: #084298;
+  --bs-blue-800: #052c65;
+  --bs-blue-900: #031633;
+
+  --bs-red-100: #f8d7da;
+  --bs-red-200: #f1aeb5;
+  --bs-red-300: #ea868f;
+  --bs-red-400: #e35d6a;
+  --bs-red-500: #dc3545;
+  --bs-red-600: #b02a37;
+  --bs-red-700: #842029;
+  --bs-red-800: #58151c;
+  --bs-red-900: #2c0b0e;
+
+  /* RGB (Para opacidades) */
+  --bs-primary-rgb: 13, 110, 253;
+  --bs-secondary-rgb: 108, 117, 125;
+  --bs-success-rgb: 25, 135, 84;
+  --bs-info-rgb: 13, 202, 240;
+  --bs-warning-rgb: 255, 193, 7;
+  --bs-danger-rgb: 220, 53, 69;
+  --bs-light-rgb: 248, 249, 250;
+  --bs-dark-rgb: 33, 37, 41;
+
+  /* Variantes Sutiles (v5.3) */
+  --bs-primary-bg-subtle: #cfe2ff;
+  --bs-success-bg-subtle: #d1e7dd;
+  --bs-danger-bg-subtle: #f8d7da;
+  --bs-light-bg-subtle: #fcfcfd;
+  --bs-dark-bg-subtle: #ced4da;
+
+  --bs-primary-border-subtle: #9ec5fe;
+  --bs-success-border-subtle: #a3cfbb;
+  --bs-danger-border-subtle: #f1aeb5;
+
+  --bs-primary-text-emphasis: #052c65;
+  --bs-success-text-emphasis: #0a5131;
+  --bs-danger-text-emphasis: #842029;
 }
 
 main {
@@ -34,6 +113,7 @@ section#monitor-esfuerzos {
 
 header {
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 footer {
@@ -170,11 +250,8 @@ canvas {
 }
 
 @media (max-width: 98%) {
-
   section,
   footer {
     padding: 1.5rem;
   }
 }
-
-</style>

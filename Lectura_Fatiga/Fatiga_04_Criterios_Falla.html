@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Criterios de falla por fatiga</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+      };
+    </script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Criterios de falla por fatiga</h1>
+    </header>
+
+    <main>
+      <section>
+        <p>
+          La línea de Goodman no busca ser el mejor "ajuste" para los datos de
+          vida infinita, aunque sirve a propósitos útiles. Se han propuesto
+          varios criterios de falla por fatiga para distintas opciones,
+          mostrados en la siguiente figura. Cada uno se describe brevemente a
+          continuación, incluyendo las ecuaciones de la curva de criterio y el
+          factor de seguridad de fatiga para vida infinita.
+        </p>
+        <figure>
+          <img
+            src="https://eduwelding.com/draftfile.php/2495/user/draft/227977364/image.png"
+            class="img-fluid"
+            alt="Comparación de criterios de fatiga"
+          />
+          <figcaption>
+            Comparación de varios criterios de falla por fatiga de vida infinita
+          </figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <header>
+          <h2>Goodman</h2>
+        </header>
+        <p>
+          La línea de Goodman es simple, conservadora y adecuada para propósitos
+          de diseño. Está casi totalmente en el lado conservador de los datos,
+          por lo que no es ideal si se busca un criterio que sea típico de los
+          mismos. Solo es aplicable para esfuerzos medios positivos, ya que no
+          es conservadora si se aplica a esfuerzos medios negativos. Las
+          ecuaciones de Goodman se definieron previamente y se repiten aquí por
+          conveniencia.
+        </p>
+
+        <figure class="equation">
+          \[ \frac{ \sigma_{a}}{S_{e}} + \frac{ \sigma_{m}}{S_{ut}} = 1 \]
+          <figcaption>Criterio de falla de Goodman</figcaption>
+        </figure>
+
+        <figure class="equation">
+          \[ n_{f} = \left( \frac{ \sigma_{a}}{S_{e}} + \frac{
+          \sigma_{m}}{S_{ut}} \right)^{-1} \; \; , \; \; \sigma_{m} \ge 0 \]
+          <figcaption>Ecuación de diseño (Factor de seguridad)</figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <header>
+          <h2>Morrow</h2>
+        </header>
+        <p>
+          La línea de Morrow es idéntica en naturaleza a la línea de Goodman,
+          salvo que reemplaza la resistencia última como la intersección de la
+          abscisa con la resistencia a la fractura verdadera \( \sigma_{f} \) o
+          el coeficiente de resistencia a la fatiga \( \sigma'_{f} \). Estos dos
+          términos son aproximadamente iguales para aceros, y ambos son algo
+          mayores que la resistencia última. Pueden ser significativamente
+          diferentes para aleaciones de aluminio, en cuyo caso \(
+          \tilde{\sigma}_f \) es el mejor ajuste. La línea de Morrow proporciona
+          un ajuste razonable a los datos de fatiga tanto en el lado del
+          esfuerzo medio positivo como en el negativo. Tiende a ser ligeramente
+          conservadora para esfuerzo medio positivo y ligeramente no
+          conservadora para esfuerzo medio negativo. Es lineal y simple, como la
+          línea de Goodman, pero con un mejor ajuste a los datos. Una desventaja
+          principal de este criterio es la disponibilidad limitada de valores
+          para \( \sigma_{f} \) y \( \tilde{\sigma}_f \). Una estimación muy
+          rudimentaria para el coeficiente de resistencia a la fatiga para
+          aceros (\( HB \leq 500 \)) es dada por la SAE como: \[
+          \sigma'_{f}=S_{ut} + 50 \text{ kpsi} \; \; \text{o} \; \; \sigma'_{f}
+          = S_{ut} + 345 \text{ MPa} \]
+        </p>
+
+        <p>Las ecuaciones para el criterio de Morrow son:</p>
+
+        <figure class="equation">
+          \[ \frac{ \sigma_{a}}{S_{e}} + \frac{ \sigma_{m}}{\tilde{\sigma}_{f}}
+          = 1 \; \; \; \text{o} \; \; \; \frac{ \sigma_{a}}{S_{e}} + \frac{
+          \sigma_{m}}{\sigma'_{f}} = 1 \]
+          <figcaption>Criterio de falla de Morrow</figcaption>
+        </figure>
+
+        <figure class="equation">
+          \[ n_{f} = \left( \frac{ \sigma_{a}}{S_{e}} + \frac{
+          \sigma_{m}}{\tilde{\sigma}_{f}} \right)^{-1} \; \; \; \text{o} \; \;
+          \; n_{f} = \left( \frac{ \sigma_{a}}{S_{e}} + \frac{
+          \sigma_{m}}{\sigma'_{f}} \right)^{-1} \]
+          <figcaption>Factor de seguridad según Morrow</figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <header>
+          <h2>Gerber</h2>
+        </header>
+        <p>
+          La curva de Gerber es una ecuación parabólica que fue una de las
+          primeras opciones para ajustarse mejor a los puntos medios de los
+          datos de fatiga. Aunque se ajusta mejor a los datos que la línea de
+          Goodman, puede ser ligeramente no conservadora, especialmente cerca
+          del eje de ordenadas. Solo se aplica a esfuerzos medios positivos, ya
+          que es excesivamente conservadora si se aplica a esfuerzos medios
+          negativos. Es históricamente conocida por su ajuste a los datos, pero
+          existen otras curvas que se ajustan mejor.
+        </p>
+
+        <figure class="equation">
+          \[ \frac{ \sigma_{a}}{S_{e}} + \left( \frac{ \sigma_{m}}{S_{ut}}
+          \right)^{2} = 1 \]
+          <figcaption>Criterio de falla parabólico de Gerber</figcaption>
+        </figure>
+
+        <figure class="equation">
+          \[ n_{f} = \frac{1}{2} \left( \frac{ S_{ut} }{ \sigma_{m} }\right)^{2}
+          \left( \frac{ \sigma_{a} }{ S_{e} } \right) \left[ -1 + \sqrt{ 1 +
+          \left( \frac{ 2 \sigma_{m} S_{e} }{ S_{ut} \sigma_{a} } \right)^{2} }
+          \right] \; \; \; , \; \; \; \sigma_{m} \ge 0\]
+          <figcaption>Factor de seguridad de Gerber</figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <header>
+          <h2>Soderberg</h2>
+        </header>
+        <p>
+          La línea de Soderberg reemplaza la resistencia última del criterio de
+          Goodman por la resistencia a la fluencia. Esto la hace
+          ultraconservadora. Su propósito es proporcionar una línea simple y
+          conservadora que verifique simultáneamente la fatiga de vida infinita
+          y la fluencia, eliminando la necesidad de una verificación de fluencia
+          separada. Podría ser útil para primeras estimaciones rápidas.
+        </p>
+
+        <figure class="equation">
+          \[ \frac{ \sigma_{a}}{S_{e}} + \frac{ \sigma_{m}}{S_{y}} = 1 \]
+          <figcaption>Criterio de falla de Soderberg</figcaption>
+        </figure>
+
+        <figure class="equation">
+          \[ n_{f} = \left( \frac{ \sigma_{a}}{S_{e}} + \frac{
+          \sigma_{m}}{S_{y}} \right)^{-1} \; \; , \; \; \sigma_{m} \ge 0 \]
+          <figcaption>Factor de seguridad de Soderberg</figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <header>
+          <h2>ASME-Elíptico</h2>
+        </header>
+        <p>
+          Este criterio utiliza una ecuación elíptica para intentar mezclar las
+          cualidades de los criterios de Gerber y Soderberg, es decir, ajustarse
+          a los datos experimentales de fatiga y verificar la fluencia al mismo
+          tiempo. Cumple ambas tareas hasta cierto punto, siendo a veces
+          conservador y a veces no conservador, tanto para fatiga como para
+          fluencia. Su principal reconocimiento es ser el criterio especificado
+          en la Norma ANSI/ASME B106.1M-1985 para el diseño de ejes de
+          transmisión.
+        </p>
+
+        <figure class="equation">
+          \[ \left( \frac{ \sigma_{a}}{S_{e}} \right)^{2} + \left( \frac{
+          \sigma_{m}}{S_{y}} \right)^{2} = 1 \]
+          <figcaption>Criterio de falla ASME-Elíptico</figcaption>
+        </figure>
+
+        <figure class="equation">
+          \[ n_{f} = \left[ \left( \frac{ \sigma_{a}}{S_{e}} \right)^{2} +
+          \left( \frac{ \sigma_{m}}{S_{y}} \right)^{2} \right]^{-1/2} \; \; , \;
+          \; \sigma_{m} \ge 0\]
+          <figcaption>Factor de seguridad ASME-Elíptico</figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <header>
+          <h2>Smith-Watson-Topper (SWT)</h2>
+        </header>
+        <p>
+          Este criterio ha ganado reconocimiento como un buen criterio de
+          fatiga. Es único por tener una base teórica en lugar de solo intentar
+          ajustarse a los datos. Aunque se asocia principalmente con el método
+          de deformación-vida, para vida de ciclo alto se puede expresar en
+          términos de esfuerzo. Básicamente afirma que los parámetros críticos
+          en la predicción de la vida a fatiga son el esfuerzo máximo y el
+          esfuerzo alternante. En forma de ecuación, el criterio SWT es:
+        </p>
+
+        <figure class="equation">
+          \[ S_{e} = \sqrt{ \sigma_{max} \sigma_{a} } = \sqrt{ \left( \sigma_{m}
+          + \sigma_{a} \right) \sigma_{a} } \]
+          <figcaption>Criterio de falla SWT</figcaption>
+        </figure>
+
+        <figure class="equation">
+          \[ n_{f} = \frac{ S_{e} }{ \sqrt{ \left( \sigma_{m} + \sigma_{a}
+          \right) \sigma_{a} } } \]
+          <figcaption>Factor de seguridad SWT</figcaption>
+        </figure>
+
+        <p>
+          Este criterio no es función de la resistencia última u otra
+          resistencia estática, por lo que su curva no se cruza con la abscisa
+          del esfuerzo medio. Su rango para esfuerzo medio positivo debe ser
+          limitado por la línea de fluencia y generalmente es aceptable para
+          esfuerzo medio negativo. Se utiliza más comúnmente para predecir un
+          esfuerzo completamente invertido equivalente para un estado de
+          esfuerzo fluctuante que no predice vida infinita, por lo que no se usa
+          habitualmente para predecir un factor de seguridad de fatiga basado en
+          alcanzar vida infinita. El criterio SWT es particularmente bueno para
+          ajustar datos de aluminio y suele ser razonable para el acero. Para
+          cualquier combinación dada de (\( \sigma_{m}, \sigma_{a} \)), podría
+          ser ligeramente conservador o no conservador con respecto a los datos
+          de falla.
+        </p>
+      </section>
+
+      <section>
+        <header>
+          <h2>Walker</h2>
+        </header>
+        <p>
+          El criterio Walker es una versión más generalizada de SWT, en la que
+          la raíz cuadrada se reemplaza por un parámetro de ajuste \( \gamma \)
+          en la forma de:
+        </p>
+
+        <figure class="equation">
+          \[ S_{e} = \sigma_{max}^{1 - \gamma} \sigma_{a}^{\gamma} = \left(
+          \sigma_{m} + \sigma_{a} \right)^{ 1 - \gamma} \sigma_{a}^{ \gamma } \]
+          <figcaption>Criterio de falla de Walker</figcaption>
+        </figure>
+
+        <figure class="equation">
+          \[ n_{f} = \frac{ S_{e} }{ \left( \sigma_{m} + \sigma_{a} \right)^{ 1
+          - \gamma} \sigma_{a}^{ \gamma } } \]
+          <figcaption>Factor de seguridad de Walker</figcaption>
+        </figure>
+
+        <p>
+          El parámetro \( \gamma \) se determina experimentalmente para cada
+          material probando múltiples valores de esfuerzo medio. Este parámetro
+          esencialmente desplaza más o menos peso entre el esfuerzo máximo y el
+          esfuerzo alternante para ajustarse mejor al comportamiento de un
+          material. El criterio SWT es un caso especial de Walker, con \( \gamma
+          = 0.5 \). El criterio Walker es conocido por proporcionar un buen
+          ajuste tanto para esfuerzo medio positivo como negativo. La desventaja
+          es que obtener el valor del parámetro de ajuste no es trivial. Una
+          relación aproximada entre \( \gamma \) y la resistencia última para
+          aceros es: \[ \gamma = -0.0002 S_{ut} + 0.8818 \; \; \; \left( S_{ut}
+          \text{ en MPa} \right) \] \[ \gamma = -0.0014 S_{ut} + 0.8818 \; \; \;
+          \left( S_{ut} \text{ en kpsi} \right) \]
+        </p>
+
+        <aside>
+          <p>
+            Con esto, se logra la simplicidad de SWT con el mejor ajuste del
+            criterio Walker, sin necesidad de pruebas. La ecuación anterior
+            muestra una tendencia de disminución de \( \gamma \) con el aumento
+            de \( S_{ut} \). Esto indica un desplazamiento de la ponderación en
+            la ecuación del criterio de falla de Walker del esfuerzo alternante
+            al esfuerzo máximo, lo que sugiere un comportamiento más frágil para
+            materiales de mayor resistencia.
+          </p>
+        </aside>
+      </section>
+
+      <section>
+        <header>
+          <h2>Aplicación a esfuerzo cortante puro</h2>
+        </header>
+        <p>
+          Para el caso en que los esfuerzos fluctuantes sean totalmente
+          esfuerzos cortantes, el diagrama de esfuerzo fluctuante y la mayoría
+          de los criterios de falla por fatiga pueden adaptarse usando esfuerzos
+          y resistencias a cortante. Específicamente, se realizan los siguientes
+          ajustes:
+        </p>
+        <ul>
+          <li>
+            Reemplazar los esfuerzos normales \( \sigma_{m} \) y \( \sigma_{a}
+            \) con los esfuerzos cortantes \( \tau_{m} \) y \( \tau_{a} \).
+          </li>
+          <li>
+            Aplicar el factor de carga \( k_{c} = 0.59 \) al límite de
+            resistencia.
+          </li>
+          <li>
+            Reemplazar \( S_{y} \) con \( S_{sy} = 0.577 S_{y} \), basándose en
+            la relación predicha por la teoría de energía de distorsión (Von
+            Mises).
+          </li>
+          <li>Reemplazar \( S_{ut} \) con \( S_{su} \).</li>
+        </ul>
+        <p>
+          Para la mayoría de los materiales, \( S_{su} \) varía del 65 al 80 por
+          ciento de la resistencia última. A falta de información específica que
+          justifique un valor más alto, utilice la estimación conservadora de \(
+          S_{su} = 0.67 S_{ut} \), que es consistente con las pruebas de
+          resistencia a torsión de materiales comunes para resortes.
+          Alternativamente, el diagrama de esfuerzo fluctuante y el criterio de
+          falla por fatiga pueden usarse directamente convirtiendo los esfuerzos
+          cortantes a esfuerzos de von Mises.
+        </p>
+      </section>
+
+      <section class="interactivo">
+        <header>
+          <h2>
+            🧪 Lab virtual: Fatigue Analysis Master Dashboard
+          </h2>
+        </header>
+
+        <aside class="interactivo">
+          <p>
+            Esta herramienta permite comparar gráficamente los distintos
+            criterios de falla por fatiga (Goodman, Morrow, Gerber, Soderberg,
+            ASME y SWT) y evaluar el factor de seguridad en tiempo real. Ajuste
+            los parámetros del material y los esfuerzos para observar cómo
+            cambia el estado de diseño y la cercanía a las fronteras de falla.
+          </p>
+        </aside>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card h-100 border-0 bg-light shadow-sm">
+              <div class="card-body">
+                <h6 class="fw-bold mb-3 border-bottom pb-2">
+                  1. Propiedades del Material
+                </h6>
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <label class="form-label small mb-0">\(S_y\)</label>
+                    <input
+                      type="number"
+                      id="u_sy"
+                      class="form-control form-control-sm"
+                      value="450"
+                    />
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small mb-0">\(S_{ut}\)</label>
+                    <input
+                      type="number"
+                      id="u_sut"
+                      class="form-control form-control-sm"
+                      value="600"
+                    />
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small mb-0">\(S_e\)</label>
+                    <input
+                      type="number"
+                      id="u_se"
+                      class="form-control form-control-sm"
+                      value="250"
+                    />
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small mb-0">\(\sigma_f\)</label>
+                    <input
+                      type="number"
+                      id="u_sf"
+                      class="form-control form-control-sm"
+                      value="900"
+                    />
+                  </div>
+                </div>
+
+                <h6 class="fw-bold mb-3 border-bottom pb-2">
+                  2. Esfuerzos Fluctuantes
+                </h6>
+                <label class="form-label small d-flex justify-content-between">
+                  Esfuerzo Medio (\(\sigma_m\))
+                  <span id="v_u_sm" class="badge bg-primary">200</span>
+                </label>
+                <input
+                  type="range"
+                  id="u_sm"
+                  class="form-range mb-3"
+                  min="0"
+                  max="800"
+                  value="200"
+                />
+
+                <label class="form-label small d-flex justify-content-between">
+                  Esfuerzo Alternante (\(\sigma_a\))
+                  <span id="v_u_sa" class="badge bg-primary">100</span>
+                </label>
+                <input
+                  type="range"
+                  id="u_sa"
+                  class="form-range mb-4"
+                  min="0"
+                  max="500"
+                  value="100"
+                />
+
+                <h6 class="fw-bold mb-3 border-bottom pb-2">
+                  3. Factores de Seguridad (\(n_f\))
+                </h6>
+                <ul class="list-unstyled small">
+                  <li class="mb-1 d-flex justify-content-between">
+                    <b>Langer (Fluencia):</b>
+                    <span id="n_u_l" class="fw-bold text-dark"></span>
+                  </li>
+                  <li class="mb-1 d-flex justify-content-between">
+                    <b>Goodman:</b>
+                    <span id="n_u_g" class="fw-bold text-danger"></span>
+                  </li>
+                  <li class="mb-1 d-flex justify-content-between">
+                    <b>Soderberg:</b>
+                    <span id="n_u_s" class="fw-bold text-warning"></span>
+                  </li>
+                  <li class="mb-1 d-flex justify-content-between">
+                    <b>Gerber:</b>
+                    <span id="n_u_ge" class="fw-bold text-info"></span>
+                  </li>
+                  <li class="mb-1 d-flex justify-content-between">
+                    <b>ASME:</b>
+                    <span id="n_u_a" class="fw-bold text-success"></span>
+                  </li>
+                  <li class="mb-1 d-flex justify-content-between">
+                    <b>Morrow:</b>
+                    <span id="n_u_m" class="fw-bold text-primary"></span>
+                  </li>
+                  <li class="mb-1 d-flex justify-content-between">
+                    <b>SWT:</b>
+                    <span id="n_u_swt" class="fw-bold text-secondary"></span>
+                  </li>
+                </ul>
+
+                <div
+                  id="st_zona"
+                  class="badge w-100 py-3 fs-6 shadow-sm bg-success mt-2"
+                >
+                  ESTADO SEGURO
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div
+              class="canvas-wrapper bg-white border rounded shadow-sm overflow-hidden"
+              style="min-height: 450px"
+            >
+              <div id="plot-container" style="width: 100%; height: 500px"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <h2>Conclusiones y recomendaciones</h2>
+      <p>
+        No existe un único mejor criterio de fatiga de vida infinita, ya que
+        cada uno tiene valor para diferentes aplicaciones. El criterio de
+        Goodman es uno de los más antiguos y conocidos, y sigue siendo una buena
+        opción cuando se busca simplicidad y conservadurismo.
+      </p>
+      <p>
+        Cuando se desea utilizar un criterio de fatiga que sea más
+        representativo de los datos experimentales, el criterio de Morrow
+        resulta atractivo, ya que es tan simple como Goodman, se ajusta mejor a
+        los datos y puede usarse para esfuerzos medios positivos y negativos. Si
+        las propiedades del material necesarias para el criterio de Morrow no
+        están disponibles y deben usarse estimaciones, el enfoque es aceptable,
+        pero quizás no sea mejor que Gerber. Los criterios SWT y Walker son
+        conceptualmente más complejos para una primera exposición a la fatiga.
+        Son más conocidos por su uso en el método de vida-deformación. Son
+        potencialmente buenas opciones, pero no parecen utilizarse para un
+        factor de seguridad de vida infinita, sino que son mejores para
+        situaciones de vida finita. Los criterios de Soderberg y ASME-Elíptico
+        pueden tener aplicaciones apropiadas, pero al intentar hacer dos cosas a
+        la vez, pueden tener algunas inconsistencias.
+      </p>
+    </footer>
+
+    <script>
+      const plotContainer = document.getElementById("plot-container");
+      const stZona = document.getElementById("st_zona");
+
+      function updateSimulation() {
+        const sy = parseFloat(document.getElementById("u_sy").value);
+        const sut = parseFloat(document.getElementById("u_sut").value);
+        const se = parseFloat(document.getElementById("u_se").value);
+        const sf = parseFloat(document.getElementById("u_sf").value);
+        const sm = parseFloat(document.getElementById("u_sm").value);
+        const sa = parseFloat(document.getElementById("u_sa").value);
+
+        // Update Labels
+        document.getElementById("v_u_sm").innerText = sm;
+        document.getElementById("v_u_sa").innerText = sa;
+
+        // Calculations
+        const nL = sy / (sm + sa);
+        const nG = 1 / (sa / se + sm / sut);
+        const nS = 1 / (sa / se + sm / sy);
+        const nGe =
+          sm > 0
+            ? 0.5 *
+              Math.pow(sut / sm, 2) *
+              (sa / se) *
+              (-1 + Math.sqrt(1 + Math.pow((2 * sm * se) / (sut * sa), 2)))
+            : se / sa;
+        const nA = Math.sqrt(1 / (Math.pow(sa / se, 2) + Math.pow(sm / sy, 2)));
+        const nM = 1 / (sa / se + sm / sf);
+        const nSWT = se / Math.sqrt(sa * (sa + sm));
+
+        document.getElementById("n_u_l").innerText = nL.toFixed(2);
+        document.getElementById("n_u_g").innerText = isFinite(nG)
+          ? nG.toFixed(2)
+          : "∞";
+        document.getElementById("n_u_s").innerText = isFinite(nS)
+          ? nS.toFixed(2)
+          : "∞";
+        document.getElementById("n_u_ge").innerText = isFinite(nGe)
+          ? nGe.toFixed(2)
+          : "∞";
+        document.getElementById("n_u_a").innerText = isFinite(nA)
+          ? nA.toFixed(2)
+          : "∞";
+        document.getElementById("n_u_m").innerText = isFinite(nM)
+          ? nM.toFixed(2)
+          : "∞";
+        document.getElementById("n_u_swt").innerText = isFinite(nSWT)
+          ? nSWT.toFixed(2)
+          : "∞";
+
+        // Status Logic
+        if (nL < 1) {
+          stZona.innerText = "FALLA POR FLUENCIA";
+          stZona.className = "badge w-100 py-3 fs-6 shadow-sm bg-danger";
+        } else if (nG < 1 || nS < 1 || nGe < 1) {
+          stZona.innerText = "RIESGO DE FATIGA";
+          stZona.className =
+            "badge w-100 py-3 fs-6 shadow-sm bg-warning text-dark";
+        } else {
+          stZona.innerText = "DISEÑO SEGURO";
+          stZona.className = "badge w-100 py-3 fs-6 shadow-sm bg-success";
+        }
+
+        // Generate Lines for Plotly
+        const xRange = Math.max(sut, sf, sy, sm) * 1.1;
+        const m_vals = Array.from({ length: 100 }, (_, i) => i * (xRange / 99));
+
+        const lines = [
+          {
+            x: [0, sy],
+            y: [sy, 0],
+            name: "Langer (Yield)",
+            line: { dash: "dash", color: "black" },
+          },
+          { x: [0, sut], y: [se, 0], name: "Goodman", line: { color: "red" } },
+          {
+            x: [0, sy],
+            y: [se, 0],
+            name: "Soderberg",
+            line: { color: "orange" },
+          },
+          { x: [0, sf], y: [se, 0], name: "Morrow", line: { color: "blue" } },
+          {
+            x: m_vals.filter((v) => v <= sut),
+            y: m_vals
+              .filter((v) => v <= sut)
+              .map((v) => se * (1 - Math.pow(v / sut, 2))),
+            name: "Gerber",
+            line: { color: "purple" },
+          },
+          {
+            x: m_vals.filter((v) => v <= sy),
+            y: m_vals
+              .filter((v) => v <= sy)
+              .map((v) => se * Math.sqrt(1 - Math.pow(v / sy, 2))),
+            name: "ASME-Elliptic",
+            line: { color: "green" },
+          },
+          {
+            x: [sm],
+            y: [sa],
+            name: "Operación",
+            mode: "markers",
+            marker: { size: 12, color: "blue", symbol: "cross" },
+          },
+        ];
+
+        const layout = {
+          title: "Comparativa de Criterios de Falla",
+          xaxis: {
+            title: "Esfuerzo Medio σ<sub>m</sub> [MPa]",
+            range: [0, xRange],
+          },
+          yaxis: {
+            title: "Esfuerzo Alternante σ<sub>a</sub> [MPa]",
+            range: [0, se * 1.5],
+          },
+          margin: { t: 40, b: 40, l: 50, r: 20 },
+          showlegend: true,
+          legend: { orientation: "h", y: -0.2 },
+        };
+
+        Plotly.react(plotContainer, lines, layout, {
+          responsive: true,
+          displayModeBar: false,
+        });
+      }
+
+      // Event Listeners
+      const controls = ["u_sy", "u_sut", "u_se", "u_sf", "u_sm", "u_sa"];
+      controls.forEach((id) =>
+        document.getElementById(id).addEventListener("input", updateSimulation),
+      );
+
+      // Initial Run
+      window.addEventListener("load", updateSimulation);
+    </script>
+  </body>
+</html>
