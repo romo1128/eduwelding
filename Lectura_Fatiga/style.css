@@ -113,10 +113,11 @@ footer {
 }
 
 aside {
+  max-width: 90%;
+  margin: 2rem auto;
   background: var(--bs-warning-bg-subtle);
   border-left: 4px solid var(--bs-warning);
   padding: 15px 20px;
-  margin: 20px 0;
   border-radius: 0 8px 8px 0;
 }
 
@@ -149,7 +150,7 @@ dl.definiciones {
   border-radius: 0.5rem;
   border: 1px solid var(--bs-border-color);
   margin: 1.5rem auto;
-    max-width: 90%;
+  max-width: 90%;
 
 }
 
@@ -176,6 +177,8 @@ figure {
 
 figure.equation {
   border-left: 4px solid var(--bs-primary);
+    background: var(--bs-primary-bg-subtle);
+
 }
 
 img {
@@ -238,6 +241,7 @@ canvas {
 }
 
 @media (max-width: 98%) {
+
   section,
   footer {
     padding: 1.5rem;
