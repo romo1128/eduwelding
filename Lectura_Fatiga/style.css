@@ -177,7 +177,7 @@ figure {
 
 figure.equation {
   border-left: 4px solid var(--bs-primary);
-    background: var(--bs-primary-bg-subtle);
+  background: var(--bs-primary-bg-subtle);
 
 }
 
