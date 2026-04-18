@@ -81,16 +81,10 @@
   --bs-danger-text-emphasis: #842029;
 }
 
-body {
-  background-color: var(--bs-body-bg);
-  color: var(--bs-body-color);
-}
-
 main {
   max-width: 100%;
   margin: 0.5rem auto;
   display: block;
-  border: 1px solid var(--bs-border-color);
 }
 
 section.interactivo {
@@ -154,7 +148,9 @@ dl.definiciones {
   background: var(--bs-tertiary-bg);
   border-radius: 0.5rem;
   border: 1px solid var(--bs-border-color);
-  margin: 1.5rem 0;
+  margin: 1.5rem auto;
+    max-width: 90%;
+
 }
 
 dt {
