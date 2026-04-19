@@ -3,209 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio Virtual: Diseño de Ejes (Shigley)</title>
+    <title>Lab Virtual: Diseño de Ejes (Estilo PhET)</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { margin-bottom: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .header-section { background: #2c3e50; color: white; padding: 30px 0; margin-bottom: 30px; border-radius: 0 0 20px 20px; }
-        #matter-container { width: 100%; height: 300px; background: #000; border-radius: 10px; overflow: hidden; }
-        .formula-box { background: #e9ecef; padding: 15px; border-left: 5px solid #0d6efd; font-family: 'Courier New', Courier, monospace; }
+        :root {
+            --phet-blue: #2980b9;
+            --phet-green: #27ae60;
+            --phet-red: #c0392b;
+            --phet-bg: #f3f4f6;
+            --panel-bg: #ffffff;
+        }
+        
+        body { background-color: var(--phet-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+        
+        /* Estilos de Panel Estilo Laboratorio */
+        .lab-panel {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-bottom: 25px;
+            border-top: 5px solid var(--phet-blue);
+        }
+        
+        .panel-danger { border-top: 5px solid var(--phet-red); }
+        
+        /* Tipografía y Controles */
+        h2 { font-weight: 700; color: #2c3e50; font-size: 1.5rem; margin-bottom: 15px; }
+        .control-label { font-weight: 600; color: #34495e; font-size: 1.1rem; }
+        .value-display { font-family: 'Courier New', Courier, monospace; font-size: 1.3rem; font-weight: bold; color: var(--phet-blue); }
+        
+        /* Sliders Personalizados gruesos */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; margin: 10px 0;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 12px; cursor: pointer;
+            background: #cbd5e1; border-radius: 6px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 28px; width: 28px; border-radius: 50%;
+            background: var(--phet-blue); cursor: pointer;
+            -webkit-appearance: none; margin-top: -8px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            border: 3px solid white;
+        }
+
+        /* Lienzos */
+        #matter-container { border-radius: 8px; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); background: #e2e8f0; }
+        
+        /* Barras de Esfuerzo */
+        .stress-bar-container { height: 25px; background: #e9ecef; border-radius: 12px; overflow: hidden; margin-top: 10px; position: relative;}
+        .stress-bar { height: 100%; transition: width 0.3s ease, background-color 0.3s ease; width: 20%; background: var(--phet-green);}
+        .stress-marker { position: absolute; top: 0; bottom: 0; left: 80%; width: 3px; background: red; z-index: 10; }
+        .stress-label { position: absolute; width: 100%; text-align: center; top: 2px; font-weight: bold; color: #000; font-size: 0.85rem; mix-blend-mode: overlay; }
+
+        /* SVG del Eje Interactivo */
+        #shaft-cross-section { width: 100%; height: 200px; background: #f8f9fa; border-radius: 8px; border: 1px dashed #adb5bd; }
+        
     </style>
 </head>
 <body>
 
-<div class="header-section text-center">
-    <h1>Ingeniería de Ejes y Transmisión</h1>
-    <p>Basado en Shigley's Mechanical Engineering Design, 11th Ed.</p>
-</div>
-
-<div class="container">
-    <div class="row">
-        <div class="col-lg-7">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title text-primary">1. Diseño Inverso: Definición de Objetivos</h5>
-                    <p class="small text-muted">Instrucción: Arrastra el punto rojo en el gráfico para definir el esfuerzo deseado. El sistema calculará el diámetro crítico ($d$) requerido.</p>
-                    <div id="plot-inverso" style="height: 400px;"></div>
-                    <div class="formula-box mt-3" id="calc-output">
-                        Esperando interacción...
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-5">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title text-danger">2. Simulación de Concentración de Esfuerzos</h5>
-                    <p class="small text-muted">Visualiza cómo el radio del hombro ($r/d$) afecta la "resistencia física". [span_2](start_span)[span_3](start_span)Un radio pequeño causa una falla prematura por fatiga[span_2](end_span)[span_3](end_span).</p>
-                    <div id="matter-container"></div>
-                    <div class="mt-3">
-                        <label class="form-label">Radio del Entalle ($r$): <span id="r-val">0.02</span></label>
-                        <input type="range" class="form-range" id="r-slider" min="0.02" max="0.2" step="0.01" value="0.02">
-                        <button class="btn btn-danger w-100 mt-2" onclick="aplicarCarga()">Aplicar Carga Crítica</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h1 style="font-weight: 800; color: #2c3e50;"><i class="fas fa-cogs"></i> Lab Virtual: Diseño de Ejes</h1>
+        <p class="text-muted">Teoría de Fatiga y Concentración de Esfuerzos (Shigley)</p>
     </div>
 
     <div class="row">
-        <div class="col-12 text-center my-4">
-            <div class="alert alert-info">
-                [span_4](start_span)<strong>Fundamento Teórico:</strong> Para un eje rotativo, el momento flector produce esfuerzos completamente invertidos[span_4](end_span). [span_5](start_span)Usamos el criterio DE-Goodman para el diseño inicial[span_5](end_span):
-                [span_6](start_span)<br><code>d = [(16n/π) * (2*Kf*Ma/Se + √3*Kfs*Tm/Sut)]^(1/3)</code>[span_6](end_span)
+        <div class="col-lg-6">
+            <div class="lab-panel">
+                <h2>1. Diseño Inverso: Geometría Dinámica</h2>
+                <p class="text-muted small">Haz clic en la gráfica para fijar el Momento Flector ($M_a$). Observa cómo el simulador "fabrica" el diámetro necesario al instante.</p>
+                
+                <div id="plot-inverso" style="height: 280px; width: 100%;"></div>
+                
+                <div class="row mt-3 align-items-center">
+                    <div class="col-6 text-center">
+                        <span class="control-label">Momento Objetivo:</span><br>
+                        <span class="value-display" id="ma-val">150,000</span> <small>N·mm</small>
+                    </div>
+                    <div class="col-6 text-center">
+                        <span class="control-label" style="color: var(--phet-green);">Diámetro Requerido (d):</span><br>
+                        <span class="value-display" style="color: var(--phet-green); font-size: 1.8rem;" id="d-val">28.5</span> <small>mm</small>
+                    </div>
+                </div>
+
+                <div class="mt-3 text-center relative">
+                    <p class="mb-1 font-weight-bold">Sección Transversal del Eje (Escala Real)</p>
+                    <svg id="shaft-cross-section" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="10" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
+                        <circle id="dynamic-shaft" cx="50" cy="50" r="28.5" fill="rgba(41, 128, 185, 0.5)" stroke="#2980b9" stroke-width="3" />
+                        <line x1="50" y1="50" id="radius-line" x2="78.5" y2="50" stroke="#2c3e50" stroke-width="1.5" stroke-dasharray="2,2"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="lab-panel panel-danger">
+                <h2>2. Prueba de Impacto y Entalles</h2>
+                <p class="text-muted small">Ajusta el radio de acuerdo (hombro). Un radio agudo aumenta el esfuerzo (K<sub>t</sub>). Deja caer la carga para probar el diseño.</p>
+                
+                <div class="mb-3">
+                    <label class="control-label d-flex justify-content-between">
+                        <span>Radio del Entalle (r): <span id="r-text" class="value-display" style="font-size: 1.2rem;">2.0</span> mm</span>
+                        <span>Geometría: <span id="r-status" class="badge bg-danger">AGUDO</span></span>
+                    </label>
+                    <input type="range" id="r-slider" min="1" max="15" step="0.5" value="2">
+                </div>
+
+                <div class="mb-3">
+                    <label class="control-label text-muted" style="font-size: 0.9rem;">Concentrador de Esfuerzos (K<sub>t</sub>) Estimado:</label>
+                    <div class="stress-bar-container">
+                        <div id="stress-bar" class="stress-bar"></div>
+                        <div class="stress-marker"></div>
+                        <div class="stress-label">ZONA DE RUPTURA (Límite Fluencia)</div>
+                    </div>
+                </div>
+
+                <div class="position-relative">
+                    <div id="matter-container"></div>
+                    <button id="btn-drop" class="btn btn-warning position-absolute top-0 end-0 m-2" style="font-weight: bold; border: 2px solid #b8860b; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                        <i class="fas fa-weight-hanging"></i> DEJAR CAER CARGA
+                    </button>
+                    <button id="btn-reset" class="btn btn-secondary position-absolute top-0 start-0 m-2" style="display:none;">
+                        <i class="fas fa-undo"></i> Reiniciar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- LÓGICA APP 1: DISEÑO INVERSO (Plotly) ---
-    const Sut = 700; // MPa
-    const Se = 200;  // MPa
-    const n = 1.5;   // Factor de seguridad deseado
-    
-    let current_Ma = 150000; // N*mm
+    // ============================================================================
+    // APP 1: DISEÑO INVERSO Y GEOMETRÍA (Plotly + SVG)
+    // ============================================================================
+    const n_safety = 1.5;
+    const Se = 200; 
+    let current_Ma = 150000; 
 
     function updateInverso() {
-        const Kf = 1.7; // Estimado inicial
-        const d_req = Math.pow((16 * n / Math.PI) * (2 * Kf * current_Ma / Se), 1/3);
+        const Kf = 1.7; 
+        const d_req = Math.pow((16 * n_safety / Math.PI) * (2 * Kf * current_Ma / Se), 1/3);
 
-        document.getElementById('calc-output').innerHTML = `
-            <strong>Resultado del Diseño:</strong><br>
-            Momento Objetivo ($M_a$): ${current_Ma.toFixed(0)} N·mm<br>
-            Diámetro mínimo requerido ($d$): <strong>${d_req.toFixed(2)} mm</strong>
-        `;
+        // Actualizar Textos
+        document.getElementById('ma-val').innerText = current_Ma.toLocaleString('en-US');
+        document.getElementById('d-val').innerText = d_req.toFixed(1);
 
-        const data = [{
-            x: [0, 500000], y: [Se, Se], mode: 'lines', name: 'Límite Resistencia (Se)', line: {dash: 'dash', color: 'gray'}
-        }, {
-            x: [current_Ma], y: [Se * 0.8], mode: 'markers+text', 
-            name: 'Objetivo de Diseño',
-            text: ['CLIC PARA MOVER'], // Cambiado visualmente
-            textposition: 'top center',
-            marker: { size: 20, color: 'red' }
-        }];
+        // Animar el SVG PhET-style
+        const svgShaft = document.getElementById('dynamic-shaft');
+        const rLine = document.getElementById('radius-line');
+        const visualRadius = Math.min(d_req, 45); // Escalar para que no se salga del SVG
+        svgShaft.setAttribute('r', visualRadius);
+        rLine.setAttribute('x2', 50 + visualRadius);
+
+        // Actualizar Plotly
+        const data = [
+            { x: [0, 400000], y: [Se, Se], mode: 'lines', name: 'Límite (Se)', line: {dash: 'dash', color: '#7f8c8d'} },
+            { 
+                x: [0, 400000], y: [0, Se*2], fill: 'tozeroy', fillcolor: 'rgba(39, 174, 96, 0.1)', mode: 'none', name: 'Zona Segura' 
+            },
+            {
+                x: [current_Ma], y: [Se * 0.7], mode: 'markers+text', 
+                name: 'Objetivo', text: ['CLIC PARA CAMBIAR'], textposition: 'top center',
+                textfont: { color: '#c0392b', weight: 'bold' },
+                marker: { size: 24, color: '#e74c3c', symbol: 'circle-dot', line: {width: 3, color: '#c0392b'} }
+            }
+        ];
 
         const layout = {
-            title: 'Espacio de Diseño: Esfuerzo vs Capacidad',
-            xaxis: { title: 'Momento Bending (Ma) [N·mm]' },
-            yaxis: { title: 'Resistencia [MPa]', range: [0, 400] }
+            margin: { t: 10, b: 40, l: 50, r: 20 },
+            xaxis: { title: 'Momento Flector aplicado (Ma)', showgrid: true, gridcolor: '#e2e8f0' },
+            yaxis: { title: 'Resistencia [MPa]', range: [0, 300], showgrid: true, gridcolor: '#e2e8f0' },
+            hovermode: false, showlegend: false
         };
 
-        Plotly.newPlot('plot-inverso', data, layout);
-
-        // El evento de clic estaba bien, solo había una discordancia con las instrucciones HTML
-        document.getElementById('plot-inverso').on('plotly_click', function(data){
-            current_Ma = data.points[0].x;
-            updateInverso();
-        });
+        Plotly.react('plot-inverso', data, layout, {displayModeBar: false});
     }
 
-    
+    Plotly.newPlot('plot-inverso', [], {}); // Init
+    document.getElementById('plot-inverso').on('plotly_click', function(data){
+        current_Ma = data.points[0].x;
+        updateInverso();
+    });
+    updateInverso();
 
-    // --- LÓGICA APP 2: REDISEÑO FÍSICO (Matter.js) ---
-    const { Engine, Render, Runner, Bodies, Composite, Constraint, Body } = Matter;
+    // ============================================================================
+    // APP 2: SIMULADOR FÍSICO "PhET" (Matter.js)
+    // ============================================================================
+    const { Engine, Render, Runner, Bodies, Composite, Constraint, Body, Events } = Matter;
     const engine = Engine.create();
     
-    // Ajuste del entorno visual para que luzca como un laboratorio
     const render = Render.create({
         element: document.getElementById('matter-container'),
         engine: engine,
-        options: { width: 400, height: 300, wireframes: false, background: '#e2e8f0' }
+        options: { width: 550, height: 350, wireframes: false, background: '#f8fafc' }
     });
 
-    let shaftThick, shaftThin, constraintsArray;
-    
+    let shaftThick, shaftThin, constraintsArray, weightBlock;
+    let isBroken = false;
+
+    // Texturas y colores (Estilos Phet)
+    const colorWall = '#64748b';
+    const colorThick = '#334155';
+    const colorThinSafe = '#94a3b8';
+    const colorThinDanger = '#fca5a5';
+    const colorWeight = '#b45309'; // Yunque naranja/bronce
+
     function initPhysics() {
+        Engine.clear(engine);
+        Render.stop(render);
+        Runner.stop(runner);
         Composite.clear(engine.world);
-        
-        // Entorno: Pared y Suelo
-        const wall = Bodies.rectangle(40, 150, 80, 300, { isStatic: true, render: {fillStyle: '#64748b'} });
-        const ground = Bodies.rectangle(200, 295, 400, 20, { isStatic: true, render: {fillStyle: '#94a3b8'} });
+        isBroken = false;
 
-        // MODELO DEL EJE ESCALONADO
-        // 1. Parte gruesa (Diámetro mayor D), fija a la pared
-        shaftThick = Bodies.rectangle(130, 150, 100, 60, { 
-            isStatic: true, 
-            render: { fillStyle: '#3b82f6' } 
-        });
-        
-        // 2. Parte delgada (Diámetro menor d), sujeta a la carga
-        shaftThin = Bodies.rectangle(250, 150, 140, 30, { 
-            render: { fillStyle: '#60a5fa' },
-            density: 0.002 // Ligero para evitar pre-carga por gravedad
+        const ground = Bodies.rectangle(275, 340, 550, 20, { isStatic: true, render: {fillStyle: '#cbd5e1'} });
+        const wall = Bodies.rectangle(50, 200, 100, 250, { isStatic: true, render: {fillStyle: colorWall} });
+
+        // Eje Escalonado
+        shaftThick = Bodies.rectangle(150, 200, 100, 70, { isStatic: true, render: { fillStyle: colorThick } });
+        shaftThin = Bodies.rectangle(300, 200, 200, 30, { 
+            render: { fillStyle: colorThinSafe }, density: 0.005, frictionAir: 0.02 
         });
 
-        // 3. Empotramiento del hombro (Se necesitan dos puntos para evitar que sea una bisagra)
-        const jointTop = Constraint.create({
-            bodyA: shaftThick, pointA: { x: 50, y: -15 },
-            bodyB: shaftThin,  pointB: { x: -70, y: -15 },
-            stiffness: 1, length: 0,
-            render: { visible: false }
-        });
-        
-        const jointBottom = Constraint.create({
-            bodyA: shaftThick, pointA: { x: 50, y: 15 },
-            bodyB: shaftThin,  pointB: { x: -70, y: 15 },
-            stiffness: 1, length: 0,
-            render: { visible: false }
-        });
-
-        // Guardamos las uniones para poder simular la fractura
+        // Empotramiento
+        const jointTop = Constraint.create({ bodyA: shaftThick, pointA: {x:50, y:-15}, bodyB: shaftThin, pointB: {x:-100, y:-15}, stiffness: 1, render:{visible:false} });
+        const jointBottom = Constraint.create({ bodyA: shaftThick, pointA: {x:50, y:15}, bodyB: shaftThin, pointB: {x:-100, y:15}, stiffness: 1, render:{visible:false} });
         constraintsArray = [jointTop, jointBottom];
 
-        Composite.add(engine.world, [wall, ground, shaftThick, shaftThin, jointTop, jointBottom]);
+        Composite.add(engine.world, [ground, wall, shaftThick, shaftThin, jointTop, jointBottom]);
         Render.run(render);
-        Runner.run(Runner.create(), engine);
+        Runner.run(runner, engine);
+
+        document.getElementById('btn-reset').style.display = 'none';
+        document.getElementById('btn-drop').style.display = 'block';
+        updateStressVisuals(); // Restablece colores
     }
 
-    function aplicarCarga() {
-        const r = parseFloat(document.getElementById('r-slider').value);
-        
-        // Aplicamos una fuerza cortante hacia abajo en el extremo libre
-        Body.applyForce(shaftThin, { x: 320, y: 150 }, { x: 0, y: 0.04 });
-        
-        // Lógica de Falla: Si el radio de entalle r es menor a 0.08, el Kt es muy alto y falla
-        if(r < 0.08) {
-            // Efecto visual: la zona delgada se pone roja por el esfuerzo
-            shaftThin.render.fillStyle = '#ef4444'; 
-            
-            // SIMULACIÓN DE FRACTURA: Eliminamos las uniones del mundo
-            Composite.remove(engine.world, constraintsArray);
-            
-            setTimeout(() => {
-                alert(`¡FRACTURA POR FATIGA!\nEl radio r=${r} generó un concentrador de esfuerzo muy agudo. La pieza se rompió en el hombro.`);
-                initPhysics(); // Reinicia la máquina para intentarlo de nuevo
-            }, 800);
+    const runner = Runner.create();
+    initPhysics();
+
+    // Lógica del Slider de Radio y Concentración de Esfuerzos (Kt)
+    const rSlider = document.getElementById('r-slider');
+    const stressBar = document.getElementById('stress-bar');
+    const rStatus = document.getElementById('r-status');
+
+    function updateStressVisuals() {
+        if(isBroken) return;
+        const r = parseFloat(rSlider.value);
+        document.getElementById('r-text').innerText = r.toFixed(1);
+
+        // Simulamos un Kt aproximado basado en r (A menor r, mayor esfuerzo)
+        // Mapeamos el slider (1 a 15) a un porcentaje de "Peligro" (90% a 20%)
+        const dangerPercent = 100 - ((r / 15) * 80); 
+        stressBar.style.width = dangerPercent + '%';
+
+        if(dangerPercent > 80) { // ZONA CRÍTICA
+            stressBar.style.backgroundColor = 'var(--phet-red)';
+            rStatus.className = 'badge bg-danger';
+            rStatus.innerText = 'CRÍTICO';
+            shaftThin.render.fillStyle = colorThinDanger; // Se ve rojo por tensión
+        } else if (dangerPercent > 50) {
+            stressBar.style.backgroundColor = '#f1c40f'; // Amarillo
+            rStatus.className = 'badge bg-warning text-dark';
+            rStatus.innerText = 'MODERADO';
+            shaftThin.render.fillStyle = '#cbd5e1';
         } else {
-            // Si el diseño es seguro, el material se ilumina en verde momentáneamente
-            shaftThin.render.fillStyle = '#10b981'; 
-            setTimeout(() => {
-                shaftThin.render.fillStyle = '#60a5fa'; // Vuelve al color original
-            }, 1000);
+            stressBar.style.backgroundColor = 'var(--phet-green)';
+            rStatus.className = 'badge bg-success';
+            rStatus.innerText = 'SEGURO';
+            shaftThin.render.fillStyle = colorThinSafe;
         }
     }
 
-    // Actualiza el texto del slider
-    document.getElementById('r-slider').oninput = function() {
-        document.getElementById('r-val').innerText = this.value;
-    };
+    rSlider.addEventListener('input', updateStressVisuals);
 
-    // Inicializar ambas apps
-    updateInverso();
-    initPhysics();
+    // Acción FÍSICA: Soltar Yunque
+    document.getElementById('btn-drop').addEventListener('click', () => {
+        document.getElementById('btn-drop').style.display = 'none';
+        
+        // Creamos una PESA (Yunque) que cae desde arriba
+        weightBlock = Bodies.rectangle(350, 0, 60, 60, { 
+            density: 0.08, // Muy pesada
+            render: { fillStyle: colorWeight, sprite: { texture: '' } } // Aquí podrías poner una imagen PNG de un yunque
+        });
+        
+        Composite.add(engine.world, weightBlock);
+
+        // Evento de Colisión
+        Events.on(engine, 'collisionStart', function(event) {
+            const pairs = event.pairs;
+            for (let i = 0; i < pairs.length; i++) {
+                const bodyA = pairs[i].bodyA;
+                const bodyB = pairs[i].bodyB;
+
+                // Si la pesa golpea el eje delgado
+                if ((bodyA === weightBlock && bodyB === shaftThin) || (bodyB === weightBlock && bodyA === shaftThin)) {
+                    
+                    const dangerPercent = parseFloat(stressBar.style.width);
+                    
+                    if(dangerPercent > 80 && !isBroken) {
+                        isBroken = true;
+                        // FRACTURA: Rompemos los empotramientos
+                        Composite.remove(engine.world, constraintsArray);
+                        shaftThin.render.fillStyle = '#dc2626'; // Rojo sangre (roto)
+                        
+                        setTimeout(()=> { document.getElementById('btn-reset').style.display = 'block'; }, 1000);
+                    } else if (!isBroken) {
+                        // REBOTE SEGURO: El eje aguanta
+                        shaftThin.render.fillStyle = '#10b981'; // Brilla verde por el impacto
+                        setTimeout(()=> { shaftThin.render.fillStyle = colorThinSafe; }, 500);
+                        setTimeout(()=> { document.getElementById('btn-reset').style.display = 'block'; }, 2000);
+                    }
+                }
+            }
+        });
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', initPhysics);
 
 </script>
-
-
-<footer class="container text-center text-muted py-4">
-    [span_10](start_span)<small>Referencia bibliográfica: Budynas, R. & Nisbett, K. (2020). Shigley's Mechanical Engineering Design. 11th Edition SI Units. McGraw-Hill.[span_10](end_span)</small>
-</footer>
-
 </body>
 </html>
