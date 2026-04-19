@@ -106,43 +106,60 @@
         });
     }
 
-    // --- LÓGICA APP 2: FÍSICA DE PROCESOS (Matter.js) ---
-    const { Engine, Render, Runner, Bodies, Composite, Constraint } = Matter;
+    
+
+    // --- LÓGICA APP 2: REDISEÑO FÍSICO (Matter.js) ---
+    const { Engine, Render, Runner, Bodies, Composite, Constraint, Body } = Matter;
     const engine = Engine.create();
     
-    // Ajuste de gravedad para que no se caiga tan rápido antes de la carga
-    engine.world.gravity.y = 0.5;
-
+    // Ajuste del entorno visual para que luzca como un laboratorio
     const render = Render.create({
         element: document.getElementById('matter-container'),
         engine: engine,
-        options: { width: 400, height: 300, wireframes: false, background: '#1a1a1a' }
+        options: { width: 400, height: 300, wireframes: false, background: '#e2e8f0' }
     });
 
-    let shaft;
+    let shaftThick, shaftThin, constraintsArray;
     
     function initPhysics() {
         Composite.clear(engine.world);
-        const ground = Bodies.rectangle(200, 290, 400, 20, { isStatic: true, render: {fillStyle: '#555'} });
-        const wall = Bodies.rectangle(10, 150, 20, 300, { isStatic: true, render: {fillStyle: '#555'} });
         
-        // El eje (sección pequeña)
-        shaft = Bodies.rectangle(150, 150, 200, 40, { 
-            render: { fillStyle: '#3498db' },
-            frictionAir: 0.05,
-            density: 0.005 // Hacemos el eje un poco más pesado para estabilizarlo
+        // Entorno: Pared y Suelo
+        const wall = Bodies.rectangle(40, 150, 80, 300, { isStatic: true, render: {fillStyle: '#64748b'} });
+        const ground = Bodies.rectangle(200, 295, 400, 20, { isStatic: true, render: {fillStyle: '#94a3b8'} });
+
+        // MODELO DEL EJE ESCALONADO
+        // 1. Parte gruesa (Diámetro mayor D), fija a la pared
+        shaftThick = Bodies.rectangle(130, 150, 100, 60, { 
+            isStatic: true, 
+            render: { fillStyle: '#3b82f6' } 
+        });
+        
+        // 2. Parte delgada (Diámetro menor d), sujeta a la carga
+        shaftThin = Bodies.rectangle(250, 150, 140, 30, { 
+            render: { fillStyle: '#60a5fa' },
+            density: 0.002 // Ligero para evitar pre-carga por gravedad
         });
 
-        // CORRECCIÓN DE LA RESTRICCIÓN: Anclar el borde izquierdo del eje (-100 px desde su centro)
-        const anchor = Constraint.create({
-            bodyA: shaft,
-            pointA: { x: -100, y: 0 }, // Punto de anclaje relativo al eje
-            pointB: { x: 20, y: 150 },  // Punto de anclaje relativo al mundo (pared)
-            stiffness: 0.9,
-            render: { strokeStyle: '#e74c3c', lineWidth: 5 } // Hacer visible el empotramiento
+        // 3. Empotramiento del hombro (Se necesitan dos puntos para evitar que sea una bisagra)
+        const jointTop = Constraint.create({
+            bodyA: shaftThick, pointA: { x: 50, y: -15 },
+            bodyB: shaftThin,  pointB: { x: -70, y: -15 },
+            stiffness: 1, length: 0,
+            render: { visible: false }
+        });
+        
+        const jointBottom = Constraint.create({
+            bodyA: shaftThick, pointA: { x: 50, y: 15 },
+            bodyB: shaftThin,  pointB: { x: -70, y: 15 },
+            stiffness: 1, length: 0,
+            render: { visible: false }
         });
 
-        Composite.add(engine.world, [ground, wall, shaft, anchor]);
+        // Guardamos las uniones para poder simular la fractura
+        constraintsArray = [jointTop, jointBottom];
+
+        Composite.add(engine.world, [wall, ground, shaftThick, shaftThin, jointTop, jointBottom]);
         Render.run(render);
         Runner.run(Runner.create(), engine);
     }
@@ -150,20 +167,31 @@
     function aplicarCarga() {
         const r = parseFloat(document.getElementById('r-slider').value);
         
-        // CORRECCIÓN DE LA FUERZA: Fuerzas más moderadas para Matter.js
-        const fuerza = r < 0.05 ? 0.08 : 0.01; 
+        // Aplicamos una fuerza cortante hacia abajo en el extremo libre
+        Body.applyForce(shaftThin, { x: 320, y: 150 }, { x: 0, y: 0.04 });
         
-        Matter.Body.applyForce(shaft, { x: shaft.position.x + 80, y: shaft.position.y }, { x: 0, y: fuerza });
-        
-        if(r < 0.05) {
-            // Un pequeño retraso (setTimeout) permite que la animación muestre el fallo antes de bloquear la pantalla con la alerta
+        // Lógica de Falla: Si el radio de entalle r es menor a 0.08, el Kt es muy alto y falla
+        if(r < 0.08) {
+            // Efecto visual: la zona delgada se pone roja por el esfuerzo
+            shaftThin.render.fillStyle = '#ef4444'; 
+            
+            // SIMULACIÓN DE FRACTURA: Eliminamos las uniones del mundo
+            Composite.remove(engine.world, constraintsArray);
+            
             setTimeout(() => {
-                alert("FALLA POR FATIGA: El radio de entalle r=" + r + " es demasiado agudo. La vida del eje es finita.");
-                initPhysics(); // Reinicia la física después de fallar
-            }, 500);
+                alert(`¡FRACTURA POR FATIGA!\nEl radio r=${r} generó un concentrador de esfuerzo muy agudo. La pieza se rompió en el hombro.`);
+                initPhysics(); // Reinicia la máquina para intentarlo de nuevo
+            }, 800);
+        } else {
+            // Si el diseño es seguro, el material se ilumina en verde momentáneamente
+            shaftThin.render.fillStyle = '#10b981'; 
+            setTimeout(() => {
+                shaftThin.render.fillStyle = '#60a5fa'; // Vuelve al color original
+            }, 1000);
         }
     }
 
+    // Actualiza el texto del slider
     document.getElementById('r-slider').oninput = function() {
         document.getElementById('r-val').innerText = this.value;
     };
