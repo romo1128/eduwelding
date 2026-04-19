@@ -67,14 +67,12 @@
     // --- LÓGICA APP 1: DISEÑO INVERSO (Plotly) ---
     const Sut = 700; // MPa
     const Se = 200;  // MPa
-    const n = 1.5;   [span_7](start_span)// Factor de seguridad deseado[span_7](end_span)
+    const n = 1.5;   // Factor de seguridad deseado
     
     let current_Ma = 150000; // N*mm
 
     function updateInverso() {
-        // Cálculo del diámetro d usando DE-Goodman simplificado (Tm=0 para este ejemplo)
-        // d = [(16 * n / pi) * (2 * Kf * Ma / Se)]^(1/3)
-        const Kf = 1.7; [span_8](start_span)// Estimado inicial[span_8](end_span)
+        const Kf = 1.7; // Estimado inicial
         const d_req = Math.pow((16 * n / Math.PI) * (2 * Kf * current_Ma / Se), 1/3);
 
         document.getElementById('calc-output').innerHTML = `
@@ -88,19 +86,20 @@
         }, {
             x: [current_Ma], y: [Se * 0.8], mode: 'markers+text', 
             name: 'Objetivo de Diseño',
-            text: ['ARRASTRAR'], textposition: 'top center',
+            text: ['CLIC PARA MOVER'], // Cambiado visualmente
+            textposition: 'top center',
             marker: { size: 20, color: 'red' }
         }];
 
         const layout = {
             title: 'Espacio de Diseño: Esfuerzo vs Capacidad',
             xaxis: { title: 'Momento Bending (Ma) [N·mm]' },
-            yaxis: { title: 'Resistencia [MPa]', range: [0, 400] },
-            dragmode: 'drawpoint'
+            yaxis: { title: 'Resistencia [MPa]', range: [0, 400] }
         };
 
         Plotly.newPlot('plot-inverso', data, layout);
 
+        // El evento de clic estaba bien, solo había una discordancia con las instrucciones HTML
         document.getElementById('plot-inverso').on('plotly_click', function(data){
             current_Ma = data.points[0].x;
             updateInverso();
@@ -110,30 +109,37 @@
     // --- LÓGICA APP 2: FÍSICA DE PROCESOS (Matter.js) ---
     const { Engine, Render, Runner, Bodies, Composite, Constraint } = Matter;
     const engine = Engine.create();
+    
+    // Ajuste de gravedad para que no se caiga tan rápido antes de la carga
+    engine.world.gravity.y = 0.5;
+
     const render = Render.create({
         element: document.getElementById('matter-container'),
         engine: engine,
         options: { width: 400, height: 300, wireframes: false, background: '#1a1a1a' }
     });
 
-    let shaft, shoulder;
+    let shaft;
     
     function initPhysics() {
         Composite.clear(engine.world);
-        const ground = Bodies.rectangle(200, 290, 400, 20, { isStatic: true });
-        const wall = Bodies.rectangle(10, 150, 20, 300, { isStatic: true });
+        const ground = Bodies.rectangle(200, 290, 400, 20, { isStatic: true, render: {fillStyle: '#555'} });
+        const wall = Bodies.rectangle(10, 150, 20, 300, { isStatic: true, render: {fillStyle: '#555'} });
         
         // El eje (sección pequeña)
         shaft = Bodies.rectangle(150, 150, 200, 40, { 
             render: { fillStyle: '#3498db' },
-            frictionAir: 0.05
+            frictionAir: 0.05,
+            density: 0.005 // Hacemos el eje un poco más pesado para estabilizarlo
         });
 
-        // Empotramiento simulado
+        // CORRECCIÓN DE LA RESTRICCIÓN: Anclar el borde izquierdo del eje (-100 px desde su centro)
         const anchor = Constraint.create({
             bodyA: shaft,
-            pointB: { x: 20, y: 150 },
-            stiffness: 0.8
+            pointA: { x: -100, y: 0 }, // Punto de anclaje relativo al eje
+            pointB: { x: 20, y: 150 },  // Punto de anclaje relativo al mundo (pared)
+            stiffness: 0.9,
+            render: { strokeStyle: '#e74c3c', lineWidth: 5 } // Hacer visible el empotramiento
         });
 
         Composite.add(engine.world, [ground, wall, shaft, anchor]);
@@ -143,13 +149,18 @@
 
     function aplicarCarga() {
         const r = parseFloat(document.getElementById('r-slider').value);
-        // Si el radio es muy pequeño (concentración de esfuerzo alta), la fuerza es "explosiva"
-        const fuerza = r < 0.05 ? 0.5 : 0.1; 
         
-        Matter.Body.applyForce(shaft, { x: shaft.position.x + 100, y: shaft.position.y }, { x: 0, y: fuerza });
+        // CORRECCIÓN DE LA FUERZA: Fuerzas más moderadas para Matter.js
+        const fuerza = r < 0.05 ? 0.08 : 0.01; 
+        
+        Matter.Body.applyForce(shaft, { x: shaft.position.x + 80, y: shaft.position.y }, { x: 0, y: fuerza });
         
         if(r < 0.05) {
-            [span_9](start_span)alert("FALLA POR FATIGA: El radio de entalle r=" + r + " es demasiado agudo. La vida del eje es finita[span_9](end_span).");
+            // Un pequeño retraso (setTimeout) permite que la animación muestre el fallo antes de bloquear la pantalla con la alerta
+            setTimeout(() => {
+                alert("FALLA POR FATIGA: El radio de entalle r=" + r + " es demasiado agudo. La vida del eje es finita.");
+                initPhysics(); // Reinicia la física después de fallar
+            }, 500);
         }
     }
 
@@ -162,6 +173,7 @@
     initPhysics();
 
 </script>
+
 
 <footer class="container text-center text-muted py-4">
     [span_10](start_span)<small>Referencia bibliográfica: Budynas, R. & Nisbett, K. (2020). Shigley's Mechanical Engineering Design. 11th Edition SI Units. McGraw-Hill.[span_10](end_span)</small>
