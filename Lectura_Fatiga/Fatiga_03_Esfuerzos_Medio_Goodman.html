@@ -2,334 +2,362 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab Virtual: Diseño de Ejes (Estilo PhET)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Diseño de Ejes (Estilo PhET)</title>
+    
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        /* ========================================================
+           SISTEMA DE DISEÑO PhET (PhET Design System)
+           ======================================================== */
         :root {
-            --phet-blue: #2980b9;
-            --phet-green: #27ae60;
-            --phet-red: #c0392b;
-            --phet-bg: #f3f4f6;
-            --panel-bg: #ffffff;
-        }
-        
-        body { background-color: var(--phet-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
-        
-        /* Estilos de Panel Estilo Laboratorio */
-        .lab-panel {
-            background: var(--panel-bg);
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-            padding: 20px;
-            margin-bottom: 25px;
-            border-top: 5px solid var(--phet-blue);
-        }
-        
-        .panel-danger { border-top: 5px solid var(--phet-red); }
-        
-        /* Tipografía y Controles */
-        h2 { font-weight: 700; color: #2c3e50; font-size: 1.5rem; margin-bottom: 15px; }
-        .control-label { font-weight: 600; color: #34495e; font-size: 1.1rem; }
-        .value-display { font-family: 'Courier New', Courier, monospace; font-size: 1.3rem; font-weight: bold; color: var(--phet-blue); }
-        
-        /* Sliders Personalizados gruesos */
-        input[type=range] {
-            -webkit-appearance: none; width: 100%; margin: 10px 0;
-        }
-        input[type=range]:focus { outline: none; }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 12px; cursor: pointer;
-            background: #cbd5e1; border-radius: 6px;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            height: 28px; width: 28px; border-radius: 50%;
-            background: var(--phet-blue); cursor: pointer;
-            -webkit-appearance: none; margin-top: -8px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-            border: 3px solid white;
+            --phet-bg: #E8F4F8; /* Azul claro clásico de PhET */
+            --phet-panel: #F3F4F5;
+            --phet-border: #8A9298;
+            --phet-blue: #3498DB;
+            --phet-nav: #1A1A1A;
+            --phet-orange: #F39C12;
+            --phet-orange-hover: #E67E22;
         }
 
-        /* Lienzos */
-        #matter-container { border-radius: 8px; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); background: #e2e8f0; }
+        * { box-sizing: border-box; font-family: "Arial", sans-serif; user-select: none; }
         
-        /* Barras de Esfuerzo */
-        .stress-bar-container { height: 25px; background: #e9ecef; border-radius: 12px; overflow: hidden; margin-top: 10px; position: relative;}
-        .stress-bar { height: 100%; transition: width 0.3s ease, background-color 0.3s ease; width: 20%; background: var(--phet-green);}
-        .stress-marker { position: absolute; top: 0; bottom: 0; left: 80%; width: 3px; background: red; z-index: 10; }
-        .stress-label { position: absolute; width: 100%; text-align: center; top: 2px; font-weight: bold; color: #000; font-size: 0.85rem; mix-blend-mode: overlay; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: var(--phet-bg); }
 
-        /* SVG del Eje Interactivo */
-        #shaft-cross-section { width: 100%; height: 200px; background: #f8f9fa; border-radius: 8px; border: 1px dashed #adb5bd; }
-        
+        /* PANTALLA DE CARGA (SPLASH SCREEN) */
+        #splash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; color: white; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        .loading-bar { width: 200px; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin-top: 20px; }
+        .loading-fill { width: 0%; height: 100%; background: var(--phet-blue); animation: load 1s forwards; }
+        @keyframes load { to { width: 100%; } }
+
+        /* CONTENEDOR PRINCIPAL */
+        #app-container { display: none; width: 100vw; height: 100vh; position: relative; }
+        .screen { width: 100%; height: calc(100vh - 60px); position: absolute; top: 0; display: none; }
+        .screen.active { display: block; }
+
+        /* PANELES ESTILO PhET (SUN UI) */
+        .phet-panel {
+            background: var(--phet-panel);
+            border: 1px solid var(--phet-border);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 2px 4px 8px rgba(0,0,0,0.15);
+            position: absolute;
+            z-index: 10;
+        }
+        .phet-panel-title { font-weight: bold; color: #333; margin-bottom: 12px; font-size: 16px; border-bottom: 1px solid #ccc; padding-bottom: 5px;}
+
+        /* CONTROLES (Sliders y Botones) */
+        .phet-slider { -webkit-appearance: none; width: 100%; background: transparent; margin: 15px 0; }
+        .phet-slider::-webkit-slider-runnable-track { height: 4px; background: #999; border-radius: 2px; }
+        .phet-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 26px; width: 26px; border-radius: 50%;
+            background: var(--phet-blue); border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            margin-top: -11px; cursor: pointer;
+        }
+
+        .phet-btn-action {
+            background: linear-gradient(to bottom, #F1C40F, var(--phet-orange)); border: 1px solid #D68910;
+            border-radius: 6px; padding: 12px 20px; font-size: 16px; font-weight: bold; color: #333;
+            cursor: pointer; box-shadow: 0 3px 0 #A04000; width: 100%; margin-top: 10px;
+        }
+        .phet-btn-action:active { transform: translateY(3px); box-shadow: 0 0 0 #A04000; }
+
+        .phet-reset-all {
+            position: absolute; bottom: 20px; right: 20px;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: linear-gradient(to bottom, #FFB347, #FF8C00); border: 1px solid #CC7000;
+            color: white; font-size: 22px; box-shadow: 1px 2px 5px rgba(0,0,0,0.4);
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+        }
+        .phet-reset-all:active { background: #E67E00; transform: scale(0.95); }
+
+        /* TERMÓMETRO / GAUGE PhET */
+        .phet-gauge { width: 30px; height: 120px; border: 2px solid #555; border-radius: 15px; background: #fff; position: relative; overflow: hidden; margin: 0 auto; }
+        .phet-gauge-fill { position: absolute; bottom: 0; width: 100%; height: 20%; background: #2ECC71; transition: height 0.2s, background 0.2s; }
+        .limit-mark { position: absolute; top: 20%; left: 0; width: 100%; border-top: 2px dashed red; z-index: 5; }
+
+        /* BARRA DE NAVEGACIÓN (JOIST) */
+        #phet-navbar {
+            position: fixed; bottom: 0; width: 100%; height: 60px; background: var(--phet-nav);
+            display: flex; justify-content: center; align-items: center; z-index: 100;
+        }
+        .nav-btn {
+            background: none; border: none; color: #888; font-size: 14px; height: 100%; padding: 0 25px;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .nav-btn i { font-size: 20px; margin-bottom: 4px; }
+        .nav-btn.active { color: #fff; border-bottom: 4px solid #F1C40F; background: #2C2C2C; }
+        .phet-logo { position: absolute; right: 20px; color: #fff; font-weight: bold; font-style: italic; font-size: 20px; letter-spacing: 1px;}
+        .phet-logo span { font-size: 10px; font-weight: normal; font-style: normal; display: block; margin-top: -5px; }
+
+        /* DISPOSICIÓN PANTALLA 1 (INVERSA) */
+        #plotly-panel { top: 20px; left: 20px; width: 450px; height: 380px; }
+        #svg-center { position: absolute; top: 50%; left: 60%; transform: translate(-50%, -50%); }
     </style>
 </head>
 <body>
 
-<div class="container py-4">
-    <div class="text-center mb-4">
-        <h1 style="font-weight: 800; color: #2c3e50;"><i class="fas fa-cogs"></i> Lab Virtual: Diseño de Ejes</h1>
-        <p class="text-muted">Teoría de Fatiga y Concentración de Esfuerzos (Shigley)</p>
+    <div id="splash">
+        <h1 style="font-style: italic; margin-bottom: 5px;">PhET</h1>
+        <p style="margin: 0; font-size: 14px; color: #aaa;">Simulaciones Interactivas (Emulación)</p>
+        <div class="loading-bar"><div class="loading-fill"></div></div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="lab-panel">
-                <h2>1. Diseño Inverso: Geometría Dinámica</h2>
-                <p class="text-muted small">Haz clic en la gráfica para fijar el Momento Flector ($M_a$). Observa cómo el simulador "fabrica" el diámetro necesario al instante.</p>
-                
-                <div id="plot-inverso" style="height: 280px; width: 100%;"></div>
-                
-                <div class="row mt-3 align-items-center">
-                    <div class="col-6 text-center">
-                        <span class="control-label">Momento Objetivo:</span><br>
-                        <span class="value-display" id="ma-val">150,000</span> <small>N·mm</small>
-                    </div>
-                    <div class="col-6 text-center">
-                        <span class="control-label" style="color: var(--phet-green);">Diámetro Requerido (d):</span><br>
-                        <span class="value-display" style="color: var(--phet-green); font-size: 1.8rem;" id="d-val">28.5</span> <small>mm</small>
-                    </div>
-                </div>
+    <div id="app-container">
 
-                <div class="mt-3 text-center relative">
-                    <p class="mb-1 font-weight-bold">Sección Transversal del Eje (Escala Real)</p>
-                    <svg id="shaft-cross-section" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="10" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
-                        <circle id="dynamic-shaft" cx="50" cy="50" r="28.5" fill="rgba(41, 128, 185, 0.5)" stroke="#2980b9" stroke-width="3" />
-                        <line x1="50" y1="50" id="radius-line" x2="78.5" y2="50" stroke="#2c3e50" stroke-width="1.5" stroke-dasharray="2,2"/>
-                    </svg>
-                </div>
+        <div id="screen-1" class="screen active">
+            <div id="plotly-panel" class="phet-panel">
+                <div class="phet-panel-title">Entorno de Carga S-N</div>
+                <div id="plot-div" style="width: 100%; height: 320px;"></div>
             </div>
+
+            <div class="phet-panel" style="top: 20px; right: 20px; width: 280px;">
+                <div class="phet-panel-title">Dimensiones del Eje</div>
+                <div style="font-size: 28px; color: var(--phet-blue); font-weight: bold; text-align: center; margin: 10px 0;">
+                    d = <span id="val-d">25.0</span> mm
+                </div>
+                <div style="text-align: center; font-size: 13px; color: #666;">Momento: <span id="val-ma">150000</span> N·mm</div>
+            </div>
+
+            <div id="svg-center">
+                <svg width="400" height="400" viewBox="0 0 200 200">
+                    <defs>
+                        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#333" />
+                        </marker>
+                    </defs>
+                    <circle id="ph-shaft" cx="100" cy="100" r="25" fill="#BDC3C7" stroke="#7F8C8D" stroke-width="3" style="transition: r 0.2s ease-out;"/>
+                    <line id="ph-dim-line" x1="100" y1="100" x2="125" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow)" style="transition: x2 0.2s ease-out;" />
+                </svg>
+            </div>
+            
+            <button class="phet-reset-all" onclick="resetApp1()"><i class="fas fa-undo"></i></button>
         </div>
 
-        <div class="col-lg-6">
-            <div class="lab-panel panel-danger">
-                <h2>2. Prueba de Impacto y Entalles</h2>
-                <p class="text-muted small">Ajusta el radio de acuerdo (hombro). Un radio agudo aumenta el esfuerzo (K<sub>t</sub>). Deja caer la carga para probar el diseño.</p>
-                
-                <div class="mb-3">
-                    <label class="control-label d-flex justify-content-between">
-                        <span>Radio del Entalle (r): <span id="r-text" class="value-display" style="font-size: 1.2rem;">2.0</span> mm</span>
-                        <span>Geometría: <span id="r-status" class="badge bg-danger">AGUDO</span></span>
-                    </label>
-                    <input type="range" id="r-slider" min="1" max="15" step="0.5" value="2">
-                </div>
 
-                <div class="mb-3">
-                    <label class="control-label text-muted" style="font-size: 0.9rem;">Concentrador de Esfuerzos (K<sub>t</sub>) Estimado:</label>
-                    <div class="stress-bar-container">
-                        <div id="stress-bar" class="stress-bar"></div>
-                        <div class="stress-marker"></div>
-                        <div class="stress-label">ZONA DE RUPTURA (Límite Fluencia)</div>
+        <div id="screen-2" class="screen">
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;">
+                <div id="matter-canvas-wrapper" style="box-shadow: 0 10px 30px rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden;"></div>
+            </div>
+
+            <div class="phet-panel" style="top: 20px; right: 20px; width: 280px;">
+                <div class="phet-panel-title">Concentración de Esfuerzos</div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <div style="font-size: 14px; color: #555;">Radio Entalle (r)</div>
+                        <div style="font-weight: bold; font-size: 20px;"><span id="r-out">2.0</span> mm</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="phet-gauge">
+                            <div class="limit-mark"></div>
+                            <div class="phet-gauge-fill" id="kt-gauge"></div>
+                        </div>
+                        <small>Esfuerzo</small>
                     </div>
                 </div>
 
-                <div class="position-relative">
-                    <div id="matter-container"></div>
-                    <button id="btn-drop" class="btn btn-warning position-absolute top-0 end-0 m-2" style="font-weight: bold; border: 2px solid #b8860b; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-                        <i class="fas fa-weight-hanging"></i> DEJAR CAER CARGA
-                    </button>
-                    <button id="btn-reset" class="btn btn-secondary position-absolute top-0 start-0 m-2" style="display:none;">
-                        <i class="fas fa-undo"></i> Reiniciar
-                    </button>
-                </div>
+                <input type="range" class="phet-slider" id="r-slider" min="1" max="15" step="0.5" value="2">
+                
+                <button class="phet-btn-action" id="btn-drop">
+                    <i class="fas fa-weight-hanging"></i> Soltar Pesa
+                </button>
             </div>
+
+            <button class="phet-reset-all" onclick="resetApp2()"><i class="fas fa-undo"></i></button>
         </div>
+
     </div>
-</div>
 
-<script>
-    // ============================================================================
-    // APP 1: DISEÑO INVERSO Y GEOMETRÍA (Plotly + SVG)
-    // ============================================================================
-    const n_safety = 1.5;
-    const Se = 200; 
-    let current_Ma = 150000; 
+    <div id="phet-navbar">
+        <button class="nav-btn active" id="nav-btn-1" onclick="setScreen(1)">
+            <i class="fas fa-chart-line"></i> Diseño Inverso
+        </button>
+        <button class="nav-btn" id="nav-btn-2" onclick="setScreen(2)">
+            <i class="fas fa-hammer"></i> Prueba Física
+        </button>
+        <div class="phet-logo">PhET <span>SIMULACIONES</span></div>
+    </div>
 
-    function updateInverso() {
-        const Kf = 1.7; 
-        const d_req = Math.pow((16 * n_safety / Math.PI) * (2 * Kf * current_Ma / Se), 1/3);
-
-        // Actualizar Textos
-        document.getElementById('ma-val').innerText = current_Ma.toLocaleString('en-US');
-        document.getElementById('d-val').innerText = d_req.toFixed(1);
-
-        // Animar el SVG PhET-style
-        const svgShaft = document.getElementById('dynamic-shaft');
-        const rLine = document.getElementById('radius-line');
-        const visualRadius = Math.min(d_req, 45); // Escalar para que no se salga del SVG
-        svgShaft.setAttribute('r', visualRadius);
-        rLine.setAttribute('x2', 50 + visualRadius);
-
-        // Actualizar Plotly
-        const data = [
-            { x: [0, 400000], y: [Se, Se], mode: 'lines', name: 'Límite (Se)', line: {dash: 'dash', color: '#7f8c8d'} },
-            { 
-                x: [0, 400000], y: [0, Se*2], fill: 'tozeroy', fillcolor: 'rgba(39, 174, 96, 0.1)', mode: 'none', name: 'Zona Segura' 
-            },
-            {
-                x: [current_Ma], y: [Se * 0.7], mode: 'markers+text', 
-                name: 'Objetivo', text: ['CLIC PARA CAMBIAR'], textposition: 'top center',
-                textfont: { color: '#c0392b', weight: 'bold' },
-                marker: { size: 24, color: '#e74c3c', symbol: 'circle-dot', line: {width: 3, color: '#c0392b'} }
-            }
-        ];
-
-        const layout = {
-            margin: { t: 10, b: 40, l: 50, r: 20 },
-            xaxis: { title: 'Momento Flector aplicado (Ma)', showgrid: true, gridcolor: '#e2e8f0' },
-            yaxis: { title: 'Resistencia [MPa]', range: [0, 300], showgrid: true, gridcolor: '#e2e8f0' },
-            hovermode: false, showlegend: false
+    <script>
+        // ======================================================================
+        // LÓGICA DE INTERFAZ GENERAL
+        // ======================================================================
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash').style.display = 'none';
+                    document.getElementById('app-container').style.display = 'block';
+                    initApp1();
+                    initApp2();
+                }, 500);
+            }, 1200); // 1.2s de carga falsa para cargar Plotly y Matter
         };
 
-        Plotly.react('plot-inverso', data, layout, {displayModeBar: false});
-    }
-
-    Plotly.newPlot('plot-inverso', [], {}); // Init
-    document.getElementById('plot-inverso').on('plotly_click', function(data){
-        current_Ma = data.points[0].x;
-        updateInverso();
-    });
-    updateInverso();
-
-    // ============================================================================
-    // APP 2: SIMULADOR FÍSICO "PhET" (Matter.js)
-    // ============================================================================
-    const { Engine, Render, Runner, Bodies, Composite, Constraint, Body, Events } = Matter;
-    const engine = Engine.create();
-    
-    const render = Render.create({
-        element: document.getElementById('matter-container'),
-        engine: engine,
-        options: { width: 550, height: 350, wireframes: false, background: '#f8fafc' }
-    });
-
-    let shaftThick, shaftThin, constraintsArray, weightBlock;
-    let isBroken = false;
-
-    // Texturas y colores (Estilos Phet)
-    const colorWall = '#64748b';
-    const colorThick = '#334155';
-    const colorThinSafe = '#94a3b8';
-    const colorThinDanger = '#fca5a5';
-    const colorWeight = '#b45309'; // Yunque naranja/bronce
-
-    function initPhysics() {
-        Engine.clear(engine);
-        Render.stop(render);
-        Runner.stop(runner);
-        Composite.clear(engine.world);
-        isBroken = false;
-
-        const ground = Bodies.rectangle(275, 340, 550, 20, { isStatic: true, render: {fillStyle: '#cbd5e1'} });
-        const wall = Bodies.rectangle(50, 200, 100, 250, { isStatic: true, render: {fillStyle: colorWall} });
-
-        // Eje Escalonado
-        shaftThick = Bodies.rectangle(150, 200, 100, 70, { isStatic: true, render: { fillStyle: colorThick } });
-        shaftThin = Bodies.rectangle(300, 200, 200, 30, { 
-            render: { fillStyle: colorThinSafe }, density: 0.005, frictionAir: 0.02 
-        });
-
-        // Empotramiento
-        const jointTop = Constraint.create({ bodyA: shaftThick, pointA: {x:50, y:-15}, bodyB: shaftThin, pointB: {x:-100, y:-15}, stiffness: 1, render:{visible:false} });
-        const jointBottom = Constraint.create({ bodyA: shaftThick, pointA: {x:50, y:15}, bodyB: shaftThin, pointB: {x:-100, y:15}, stiffness: 1, render:{visible:false} });
-        constraintsArray = [jointTop, jointBottom];
-
-        Composite.add(engine.world, [ground, wall, shaftThick, shaftThin, jointTop, jointBottom]);
-        Render.run(render);
-        Runner.run(runner, engine);
-
-        document.getElementById('btn-reset').style.display = 'none';
-        document.getElementById('btn-drop').style.display = 'block';
-        updateStressVisuals(); // Restablece colores
-    }
-
-    const runner = Runner.create();
-    initPhysics();
-
-    // Lógica del Slider de Radio y Concentración de Esfuerzos (Kt)
-    const rSlider = document.getElementById('r-slider');
-    const stressBar = document.getElementById('stress-bar');
-    const rStatus = document.getElementById('r-status');
-
-    function updateStressVisuals() {
-        if(isBroken) return;
-        const r = parseFloat(rSlider.value);
-        document.getElementById('r-text').innerText = r.toFixed(1);
-
-        // Simulamos un Kt aproximado basado en r (A menor r, mayor esfuerzo)
-        // Mapeamos el slider (1 a 15) a un porcentaje de "Peligro" (90% a 20%)
-        const dangerPercent = 100 - ((r / 15) * 80); 
-        stressBar.style.width = dangerPercent + '%';
-
-        if(dangerPercent > 80) { // ZONA CRÍTICA
-            stressBar.style.backgroundColor = 'var(--phet-red)';
-            rStatus.className = 'badge bg-danger';
-            rStatus.innerText = 'CRÍTICO';
-            shaftThin.render.fillStyle = colorThinDanger; // Se ve rojo por tensión
-        } else if (dangerPercent > 50) {
-            stressBar.style.backgroundColor = '#f1c40f'; // Amarillo
-            rStatus.className = 'badge bg-warning text-dark';
-            rStatus.innerText = 'MODERADO';
-            shaftThin.render.fillStyle = '#cbd5e1';
-        } else {
-            stressBar.style.backgroundColor = 'var(--phet-green)';
-            rStatus.className = 'badge bg-success';
-            rStatus.innerText = 'SEGURO';
-            shaftThin.render.fillStyle = colorThinSafe;
+        function setScreen(num) {
+            document.getElementById('screen-1').classList.toggle('active', num === 1);
+            document.getElementById('screen-2').classList.toggle('active', num === 2);
+            document.getElementById('nav-btn-1').classList.toggle('active', num === 1);
+            document.getElementById('nav-btn-2').classList.toggle('active', num === 2);
         }
-    }
 
-    rSlider.addEventListener('input', updateStressVisuals);
+        // ======================================================================
+        // APP 1: DISEÑO INVERSO (PLOTLY + SVG)
+        // ======================================================================
+        const Se = 200;
+        let current_Ma = 150000;
 
-    // Acción FÍSICA: Soltar Yunque
-    document.getElementById('btn-drop').addEventListener('click', () => {
-        document.getElementById('btn-drop').style.display = 'none';
-        
-        // Creamos una PESA (Yunque) que cae desde arriba
-        weightBlock = Bodies.rectangle(350, 0, 60, 60, { 
-            density: 0.08, // Muy pesada
-            render: { fillStyle: colorWeight, sprite: { texture: '' } } // Aquí podrías poner una imagen PNG de un yunque
-        });
-        
-        Composite.add(engine.world, weightBlock);
+        function updateApp1() {
+            // Ecuación simplificada de diseño de eje
+            const d_req = Math.pow((16 * 1.5 / Math.PI) * (2 * 1.7 * current_Ma / Se), 1/3);
+            
+            // Actualizar textos
+            document.getElementById('val-ma').innerText = current_Ma.toFixed(0);
+            document.getElementById('val-d').innerText = d_req.toFixed(1);
 
-        // Evento de Colisión
-        Events.on(engine, 'collisionStart', function(event) {
-            const pairs = event.pairs;
-            for (let i = 0; i < pairs.length; i++) {
-                const bodyA = pairs[i].bodyA;
-                const bodyB = pairs[i].bodyB;
+            // Animar SVG (Escalar círculo y mover flecha)
+            const visualR = Math.min(Math.max(d_req, 10), 90); // Limitar para que quepa visualmente
+            document.getElementById('ph-shaft').setAttribute('r', visualR);
+            document.getElementById('ph-dim-line').setAttribute('x2', 100 + visualR);
 
-                // Si la pesa golpea el eje delgado
-                if ((bodyA === weightBlock && bodyB === shaftThin) || (bodyB === weightBlock && bodyA === shaftThin)) {
-                    
-                    const dangerPercent = parseFloat(stressBar.style.width);
-                    
-                    if(dangerPercent > 80 && !isBroken) {
-                        isBroken = true;
-                        // FRACTURA: Rompemos los empotramientos
-                        Composite.remove(engine.world, constraintsArray);
-                        shaftThin.render.fillStyle = '#dc2626'; // Rojo sangre (roto)
-                        
-                        setTimeout(()=> { document.getElementById('btn-reset').style.display = 'block'; }, 1000);
-                    } else if (!isBroken) {
-                        // REBOTE SEGURO: El eje aguanta
-                        shaftThin.render.fillStyle = '#10b981'; // Brilla verde por el impacto
-                        setTimeout(()=> { shaftThin.render.fillStyle = colorThinSafe; }, 500);
-                        setTimeout(()=> { document.getElementById('btn-reset').style.display = 'block'; }, 2000);
-                    }
+            // Actualizar Plotly
+            Plotly.react('plot-div', [
+                { x: [0, 500000], y: [Se, Se], mode: 'lines', line: {dash: 'dash', color: '#888'}, name: 'Límite' },
+                { x: [current_Ma], y: [Se * 0.5], mode: 'markers+text', text: ['ARRÁSTRAME'], textposition: 'top center',
+                  marker: { size: 25, color: 'var(--phet-orange)', line: {width: 3, color: '#A04000'} }, name: 'Objetivo' }
+            ], {
+                margin: { t: 20, b: 40, l: 40, r: 20 },
+                xaxis: { title: 'Momento (Ma)' }, yaxis: { title: 'Esfuerzo [MPa]', range: [0, 300] },
+                showlegend: false, hovermode: false
+            }, {displayModeBar: false});
+        }
+
+        function initApp1() {
+            Plotly.newPlot('plot-div', [], {});
+            document.getElementById('plot-div').on('plotly_click', function(data){
+                current_Ma = data.points[0].x;
+                updateApp1();
+            });
+            updateApp1();
+        }
+
+        function resetApp1() { current_Ma = 150000; updateApp1(); }
+
+        // ======================================================================
+        // APP 2: FÍSICA Y FRACTURA (MATTER.JS)
+        // ======================================================================
+        const { Engine, Render, Runner, Bodies, Composite, Constraint, Events } = Matter;
+        let engine2, render2, runner2, shaftThin, constraintsArr, isBroken = false;
+
+        function initApp2() {
+            if(engine2) { Engine.clear(engine2); Render.stop(render2); Runner.stop(runner2); document.getElementById('matter-canvas-wrapper').innerHTML = ""; }
+            
+            engine2 = Engine.create();
+            render2 = Render.create({
+                element: document.getElementById('matter-canvas-wrapper'),
+                engine: engine2,
+                options: { width: 800, height: 500, wireframes: false, background: '#D6EAF8' } // Cielo PhET
+            });
+
+            isBroken = false;
+            document.getElementById('btn-drop').style.display = 'block';
+            updateGauge();
+
+            // Construir Escena
+            const ground = Bodies.rectangle(400, 480, 800, 40, { isStatic: true, render: {fillStyle: '#7F8C8D'} });
+            const wall = Bodies.rectangle(100, 300, 100, 320, { isStatic: true, render: {fillStyle: '#95A5A6'} });
+            
+            const shaftThick = Bodies.rectangle(200, 300, 100, 80, { isStatic: true, render: {fillStyle: '#BDC3C7'} });
+            shaftThin = Bodies.rectangle(400, 300, 300, 40, { render: {fillStyle: '#ECF0F1'}, density: 0.005 });
+
+            // Empotramiento
+            const c1 = Constraint.create({ bodyA: shaftThick, pointA: {x:50, y:-18}, bodyB: shaftThin, pointB: {x:-150, y:-18}, stiffness: 1, render:{visible:false} });
+            const c2 = Constraint.create({ bodyA: shaftThick, pointA: {x:50, y:18}, bodyB: shaftThin, pointB: {x:-150, y:18}, stiffness: 1, render:{visible:false} });
+            constraintsArr = [c1, c2];
+
+            Composite.add(engine2.world, [ground, wall, shaftThick, shaftThin, c1, c2]);
+
+            // Dibujar etiquetas de texto (Estilo PhET)
+            Events.on(render2, 'afterRender', function() {
+                const ctx = render2.context;
+                ctx.font = "bold 16px Arial"; ctx.fillStyle = "#555"; ctx.textAlign = "center";
+                ctx.fillText("Base Fija", 100, 300);
+                if(!isBroken) {
+                    ctx.fillStyle = "#3498DB";
+                    ctx.fillText("Eje a Prueba", shaftThin.position.x, shaftThin.position.y + 5);
                 }
+            });
+
+            Render.run(render2);
+            runner2 = Runner.create();
+            Runner.run(runner2, engine2);
+        }
+
+        // Lógica del Slider y Termómetro
+        const rSlider = document.getElementById('r-slider');
+        const gaugeFill = document.getElementById('kt-gauge');
+        
+        function updateGauge() {
+            if(isBroken) return;
+            const r = parseFloat(rSlider.value);
+            document.getElementById('r-out').innerText = r.toFixed(1);
+            
+            // Mapeo: Radio menor = mayor esfuerzo (barra sube)
+            const stressPct = 100 - ((r / 15) * 85); 
+            gaugeFill.style.height = stressPct + '%';
+
+            if(stressPct > 80) {
+                gaugeFill.style.background = '#E74C3C'; // Rojo
+                shaftThin.render.fillStyle = '#FADBD8'; // Eje se pone rojizo por tensión
+            } else if(stressPct > 50) {
+                gaugeFill.style.background = '#F1C40F'; // Amarillo
+                shaftThin.render.fillStyle = '#ECF0F1';
+            } else {
+                gaugeFill.style.background = '#2ECC71'; // Verde
+                shaftThin.render.fillStyle = '#D4EFDF'; // Eje verde pálido (seguro)
             }
+        }
+        rSlider.addEventListener('input', updateGauge);
+
+        // Dejar caer la Pesa
+        document.getElementById('btn-drop').addEventListener('click', () => {
+            document.getElementById('btn-drop').style.display = 'none';
+            
+            const weight = Bodies.rectangle(500, 0, 80, 80, { 
+                density: 0.1, 
+                render: { fillStyle: '#D35400' } // Color cobre/bronce
+            });
+            Composite.add(engine2.world, weight);
+
+            Events.on(engine2, 'collisionStart', function(event) {
+                event.pairs.forEach(pair => {
+                    if ((pair.bodyA === weight && pair.bodyB === shaftThin) || (pair.bodyB === weight && pair.bodyA === shaftThin)) {
+                        const stressPct = parseFloat(gaugeFill.style.height);
+                        if(stressPct > 80 && !isBroken) {
+                            isBroken = true;
+                            Composite.remove(engine2.world, constraintsArr); // Ruptura
+                            shaftThin.render.fillStyle = '#E74C3C'; // Rojo vivo
+                        } else if(!isBroken) {
+                            shaftThin.render.fillStyle = '#2ECC71'; // Absorbe golpe
+                            setTimeout(() => { shaftThin.render.fillStyle = '#ECF0F1'; }, 500);
+                        }
+                    }
+                });
+            });
         });
-    });
 
-    document.getElementById('btn-reset').addEventListener('click', initPhysics);
+        function resetApp2() { document.getElementById('r-slider').value = 2; initApp2(); }
 
-</script>
+    </script>
 </body>
 </html>
